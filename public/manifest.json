@@ -1,0 +1,17 @@
+{
+  "name": "Side A",
+  "short_name": "Side A",
+  "description": "A music timeline quiz",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f1e1dc",
+  "theme_color": "#1c1810",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
