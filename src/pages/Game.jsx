@@ -25,7 +25,6 @@ export default function Game({ settings, onQuit }) {
   const [selectedGap, setSelectedGap] = useState(null)
   const [isCorrect, setIsCorrect] = useState(null)
   const [error, setError] = useState(null)
-  const [playerReady, setPlayerReady] = useState(false)
 
   function randomAnchorYear(decades) {
     const DECADE_RANGES = {
@@ -43,7 +42,6 @@ export default function Game({ settings, onQuit }) {
     async function init() {
       try {
         await initPlayer()
-        setPlayerReady(true)
         const t = await fetchTracks(settings)
         if (t.length === 0) throw new Error('Ingen sange fundet med de valgte indstillinger.')
         setTracks(t)
@@ -125,7 +123,7 @@ export default function Game({ settings, onQuit }) {
     return (
       <div className="page" style={{ justifyContent: 'center', alignItems: 'center', gap: '1rem', textAlign: 'center' }}>
         <div style={{ fontSize: '2rem' }}>⚠️</div>
-        <p style={{ color: 'var(--accent)', whiteSpace: 'pre-wrap', fontSize: '0.8rem', textAlign: 'left' }}>{error}</p>
+        <p style={{ color: 'var(--accent)', whiteSpace: 'pre-wrap', fontSize: '0.85rem', lineHeight: 1.5 }}>{error}</p>
         <button className="btn-secondary" onClick={onQuit} style={{ width: 'auto', padding: '0.75rem 2rem' }}>
           Tilbage
         </button>
@@ -136,8 +134,16 @@ export default function Game({ settings, onQuit }) {
   if (phase === PHASE.LOADING) {
     return (
       <div className="page" style={{ justifyContent: 'center', alignItems: 'center', gap: '1rem', textAlign: 'center' }}>
-        <div style={{ fontSize: '2rem' }}>🎵</div>
-        <p style={{ color: 'var(--muted)' }}>Henter sange og forbinder til Spotify...</p>
+        <div style={{
+          width: 56, height: 56, borderRadius: 16,
+          background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '1.6rem',
+          animation: 'pulse 1.5s ease-in-out infinite',
+        }}>
+          🎵
+        </div>
+        <p style={{ color: 'var(--text2)', fontSize: '0.95rem' }}>Henter sange og forbinder til Spotify…</p>
       </div>
     )
   }
@@ -148,34 +154,87 @@ export default function Game({ settings, onQuit }) {
       : null
 
     return (
-      <div className="page" style={{ justifyContent: 'center', alignItems: 'center', gap: '2rem', textAlign: 'center' }}>
+      <div className="page" style={{ justifyContent: 'center', alignItems: 'center', gap: '1.5rem', textAlign: 'center' }}>
         <div style={{ fontSize: '3rem' }}>🏆</div>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 900 }}>Spillet er slut!</h2>
-        <div style={{ display: 'flex', gap: '1.5rem' }}>
+        <h2 style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.03em' }}>Spillet er slut!</h2>
+
+        <div style={{ display: 'flex', gap: '1rem', width: '100%', maxWidth: 320 }}>
           {teams.map((t, i) => (
             <div key={i} style={{
+              flex: 1,
               background: 'var(--card)',
               border: `2px solid ${winner?.name === t.name ? 'var(--accent2)' : 'var(--border)'}`,
-              borderRadius: 12,
-              padding: '1rem 1.5rem',
-              minWidth: 120,
+              borderRadius: 'var(--radius-lg)',
+              padding: '1.25rem 1rem',
+              textAlign: 'center',
             }}>
-              <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{t.name}</div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--accent2)' }}>{t.score}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>point</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text2)', marginBottom: '0.5rem' }}>{t.name}</div>
+              <div style={{ fontSize: '2.8rem', fontWeight: 900, color: 'var(--accent2)', lineHeight: 1 }}>{t.score}</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text3)', marginTop: '0.25rem' }}>point</div>
             </div>
           ))}
         </div>
-        {winner
-          ? <p style={{ fontWeight: 700, fontSize: '1.1rem' }}>{winner.name} vinder! 🎉</p>
-          : <p style={{ fontWeight: 700, fontSize: '1.1rem' }}>Uafgjort! 🤝</p>
-        }
-        <button className="btn-primary" onClick={onQuit} style={{ maxWidth: 280 }}>
+
+        <p style={{ fontWeight: 700, fontSize: '1.1rem' }}>
+          {winner ? `${winner.name} vinder! 🎉` : 'Uafgjort! 🤝'}
+        </p>
+
+        <button className="btn-primary" onClick={onQuit} style={{ maxWidth: 280, width: '100%' }}>
           Ny opsætning
         </button>
       </div>
     )
   }
+
+  const revealed = phase === PHASE.REVEALING
+
+  const songCard = (
+    <div style={{
+      margin: '0.75rem 1rem 0',
+      background: 'var(--surface)',
+      border: `2px solid ${revealed && isCorrect ? 'var(--green)' : revealed ? 'var(--accent)' : 'var(--border)'}`,
+      borderRadius: 'var(--radius-lg)',
+      padding: '1rem',
+      display: 'flex',
+      gap: '1rem',
+      alignItems: 'center',
+      transition: 'border-color 0.2s',
+    }}>
+      {revealed && currentTrack?.albumArt
+        ? <img src={currentTrack.albumArt} alt="" style={{ width: 60, height: 60, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} />
+        : <div style={{
+            width: 60, height: 60, borderRadius: 10, flexShrink: 0,
+            background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1.6rem',
+          }}>🎵</div>
+      }
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {revealed ? (
+          <>
+            <div style={{ fontWeight: 800, fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {currentTrack?.title}
+            </div>
+            <div style={{ color: 'var(--text2)', fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '0.1rem' }}>
+              {currentTrack?.artist}
+            </div>
+            <div style={{ marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontWeight: 900, fontSize: '1rem', color: 'var(--accent2)' }}>{currentTrack?.year}</span>
+              <span style={{ fontWeight: 700, fontSize: '0.85rem', color: isCorrect ? 'var(--green)' : 'var(--accent)' }}>
+                {isCorrect ? '✓ Korrekt! +1' : '✗ Forkert'}
+              </span>
+            </div>
+          </>
+        ) : (
+          <div style={{ color: 'var(--text2)', fontSize: '0.9rem', lineHeight: 1.4 }}>
+            {phase === PHASE.READY && 'Tryk Spil sang, og træk kortet til tidslinjen'}
+            {phase === PHASE.PLAYING && 'Træk kortet ned til tidslinjen'}
+            {phase === PHASE.PLACING && '✓ Placeret — bekræft eller træk igen'}
+          </div>
+        )}
+      </div>
+    </div>
+  )
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
@@ -183,81 +242,52 @@ export default function Game({ settings, onQuit }) {
       <div style={{
         background: 'var(--surface)',
         borderBottom: '1px solid var(--border)',
-        padding: '0.75rem 1.5rem',
+        padding: '0.75rem 1.25rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        gap: '0.5rem',
       }}>
         <div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Runde {roundNumber}/{totalRounds}</div>
-          <div style={{ fontWeight: 700, fontSize: '1rem' }}>{currentTeam.name}</div>
+          <div className="label">Runde {roundNumber}/{totalRounds}</div>
+          <div style={{ fontWeight: 700, fontSize: '1rem', marginTop: '0.1rem' }}>{currentTeam.name}</div>
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
           {teams.map((t, i) => (
-            <div key={i} style={{ textAlign: 'center', opacity: i === teamIdx ? 1 : 0.4 }}>
-              <div style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>{t.name}</div>
-              <div style={{ fontWeight: 900, color: 'var(--accent2)' }}>{t.score}</div>
+            <div key={i} style={{
+              textAlign: 'center',
+              opacity: i === teamIdx ? 1 : 0.35,
+              transition: 'opacity 0.2s',
+            }}>
+              <div className="label">{t.name}</div>
+              <div style={{ fontWeight: 900, fontSize: '1.3rem', color: 'var(--accent2)', lineHeight: 1 }}>{t.score}</div>
             </div>
           ))}
         </div>
-        <button onClick={onQuit} style={{
-          background: 'none', color: 'var(--muted)', padding: '0.25rem 0.5rem', fontSize: '0.8rem', border: '1px solid var(--border)'
-        }}>
+
+        <button onClick={onQuit} className="btn-ghost" style={{ fontSize: '0.8rem' }}>
           Afslut
         </button>
       </div>
 
-      {/* Current song card */}
-      {currentTrack && (() => {
-        const revealed = phase === PHASE.REVEALING
-        const cardEl = (
-          <div style={{
-            margin: '1rem 1rem 0',
-            background: 'var(--surface)',
-            border: `2px solid ${revealed && isCorrect ? 'var(--green)' : revealed ? 'var(--accent)' : 'var(--border)'}`,
-            borderRadius: 12,
-            padding: '1rem',
-            display: 'flex',
-            gap: '1rem',
-            alignItems: 'center',
-          }}>
-            {revealed && currentTrack.albumArt
-              ? <img src={currentTrack.albumArt} alt="" style={{ width: 64, height: 64, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
-              : <div style={{ width: 64, height: 64, borderRadius: 8, background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem', flexShrink: 0 }}>🎵</div>
-            }
-            <div style={{ flex: 1, minWidth: 0 }}>
-              {revealed ? (
-                <>
-                  <div style={{ fontWeight: 900, fontSize: '1.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack.title}</div>
-                  <div style={{ color: 'var(--muted)', fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack.artist}</div>
-                  <div style={{ marginTop: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--accent2)' }}>{currentTrack.year}</span>
-                    <span style={{ fontWeight: 700, color: isCorrect ? 'var(--green)' : 'var(--accent)' }}>{isCorrect ? '✓ Korrekt! +1' : '✗ Forkert'}</span>
-                  </div>
-                </>
-              ) : (
-                <div style={{ color: 'var(--muted)', fontSize: '0.95rem' }}>
-                  {phase === PHASE.READY ? 'Tryk Spil sang og træk kortet til tidslinjen' : phase === PHASE.PLACING ? '✓ Placeret — bekræft eller træk igen' : 'Træk kortet ned på tidslinjen'}
-                </div>
-              )}
-            </div>
-          </div>
-        )
-        return phase === PHASE.PLAYING
-          ? <DraggableCard onDrop={handleDrop}>{cardEl}</DraggableCard>
-          : cardEl
-      })()}
+      {/* Song card */}
+      {currentTrack && (
+        phase === PHASE.PLAYING
+          ? <DraggableCard onDrop={handleDrop}>{songCard}</DraggableCard>
+          : songCard
+      )}
 
       {/* Action buttons */}
-      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <div style={{ padding: '0.75rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {phase === PHASE.READY && (
           <button className="btn-green" onClick={handlePlay}>
             ▶ Spil sang
           </button>
         )}
         {phase === PHASE.PLAYING && (
-          <p style={{ color: 'var(--muted)', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>
-            Træk kortet ned på tidslinjen
+          <p style={{ color: 'var(--text3)', fontSize: '0.82rem', textAlign: 'center', margin: 0 }}>
+            Træk kortet ned til tidslinjen ↓
           </p>
         )}
         {phase === PHASE.PLACING && (
@@ -275,7 +305,7 @@ export default function Game({ settings, onQuit }) {
       {/* Timeline */}
       <div style={{ flex: 1, padding: '0 1rem 1.5rem', overflowY: 'auto' }}>
         {currentTeam.timeline.length === 0 && phase !== PHASE.PLACING ? (
-          <p style={{ color: 'var(--muted)', fontSize: '0.85rem', textAlign: 'center', padding: '1rem' }}>
+          <p style={{ color: 'var(--text3)', fontSize: '0.85rem', textAlign: 'center', padding: '1.5rem 0' }}>
             {phase === PHASE.READY ? 'Tidslinjen er tom — spil det første kort!' : ''}
           </p>
         ) : null}

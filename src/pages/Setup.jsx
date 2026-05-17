@@ -6,13 +6,13 @@ const GENRES = [
   { value: 'pop', label: 'Pop' },
   { value: 'rock', label: 'Rock' },
   { value: 'hip-hop', label: 'Hip-Hop' },
-  { value: 'dance', label: 'Dance / Electronic' },
+  { value: 'dance', label: 'Dance' },
   { value: 'r&b', label: 'R&B / Soul' },
 ]
 const DIFFICULTIES = [
   { value: 'easy', label: 'Let', desc: 'Store hits' },
   { value: 'medium', label: 'Medium', desc: 'Kendte sange' },
-  { value: 'hard', label: 'Svær', desc: 'Mere obskurt' },
+  { value: 'hard', label: 'Svær', desc: 'Obskurt' },
 ]
 
 export default function Setup({ onStart }) {
@@ -36,117 +36,109 @@ export default function Setup({ onStart }) {
   }
 
   return (
-    <div className="page" style={{ gap: '1.5rem', paddingBottom: '2rem' }}>
-      <h1 style={{ fontSize: '1.8rem', fontWeight: 900, textAlign: 'center' }}>🎵 Hitster Digital</h1>
+    <div className="page" style={{ gap: '0', paddingTop: '2rem', paddingBottom: '2rem' }}>
+      <h1 style={{ fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '2rem' }}>
+        Nyt spil
+      </h1>
 
-      <section style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <label style={labelStyle}>Holdnavne</label>
-        <input
-          type="text"
-          value={team1}
-          onChange={e => setTeam1(e.target.value)}
-          placeholder="Hold 1"
-          maxLength={20}
-        />
-        <input
-          type="text"
-          value={team2}
-          onChange={e => setTeam2(e.target.value)}
-          placeholder="Hold 2"
-          maxLength={20}
-        />
-      </section>
+      <Section label="Hold">
+        <input type="text" value={team1} onChange={e => setTeam1(e.target.value)} placeholder="Hold 1" maxLength={20} />
+        <input type="text" value={team2} onChange={e => setTeam2(e.target.value)} placeholder="Hold 2" maxLength={20} style={{ marginTop: '0.5rem' }} />
+      </Section>
 
-      <section style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <label style={labelStyle}>Årtier</label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <Section label="Årtier">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
           {DECADES.map(d => (
-            <button
-              key={d}
-              onClick={() => toggleDecade(d)}
-              style={chipStyle(decades.includes(d))}
-            >
+            <Chip key={d} active={decades.includes(d)} onClick={() => toggleDecade(d)}>
               {d}
-            </button>
+            </Chip>
           ))}
         </div>
-      </section>
+      </Section>
 
-      <section style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <label style={labelStyle}>Sværhedsgrad</label>
+      <Section label="Sværhedsgrad">
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           {DIFFICULTIES.map(d => (
             <button
               key={d.value}
               onClick={() => setDifficulty(d.value)}
-              style={{ ...chipStyle(difficulty === d.value), flex: 1, flexDirection: 'column', padding: '0.6rem 0.3rem' }}
+              style={{
+                flex: 1,
+                padding: '0.75rem 0.25rem',
+                borderRadius: 'var(--radius)',
+                background: difficulty === d.value ? 'var(--accent)' : 'var(--card)',
+                border: `1px solid ${difficulty === d.value ? 'var(--accent)' : 'var(--border)'}`,
+                color: difficulty === d.value ? '#fff' : 'var(--text)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.2rem',
+              }}
             >
-              <span style={{ fontWeight: 700 }}>{d.label}</span>
-              <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>{d.desc}</span>
+              <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{d.label}</span>
+              <span style={{ fontSize: '0.72rem', color: difficulty === d.value ? 'rgba(255,255,255,0.75)' : 'var(--text3)' }}>{d.desc}</span>
             </button>
           ))}
         </div>
-      </section>
+      </Section>
 
-      <section style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <label style={labelStyle}>Genre</label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <Section label="Genre">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
           {GENRES.map(g => (
-            <button
-              key={g.value}
-              onClick={() => setGenre(g.value)}
-              style={chipStyle(genre === g.value)}
-            >
+            <Chip key={g.value} active={genre === g.value} onClick={() => setGenre(g.value)}>
               {g.label}
-            </button>
+            </Chip>
           ))}
         </div>
-      </section>
+      </Section>
 
-      <section style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <label style={labelStyle}>Antal runder</label>
+      <Section label="Antal runder">
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           {[10, 20, 30].map(n => (
-            <button
-              key={n}
-              onClick={() => setRounds(n)}
-              style={{ ...chipStyle(rounds === n), flex: 1 }}
-            >
+            <Chip key={n} active={rounds === n} onClick={() => setRounds(n)} style={{ flex: 1, justifyContent: 'center' }}>
               {n}
-            </button>
+            </Chip>
           ))}
         </div>
-      </section>
+      </Section>
 
       <button
         className="btn-primary"
         onClick={handleStart}
         disabled={!team1.trim() || !team2.trim() || decades.length === 0}
-        style={{ marginTop: '0.5rem' }}
+        style={{ marginTop: '1.5rem' }}
       >
-        Start spil
+        Start spil →
       </button>
     </div>
   )
 }
 
-const labelStyle = {
-  fontSize: '0.85rem',
-  fontWeight: 700,
-  color: 'var(--muted)',
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
+function Section({ label, children }) {
+  return (
+    <div style={{ marginBottom: '1.5rem' }}>
+      <div className="label" style={{ marginBottom: '0.6rem' }}>{label}</div>
+      {children}
+    </div>
+  )
 }
 
-const chipStyle = active => ({
-  background: active ? 'var(--accent)' : 'var(--card)',
-  color: active ? '#fff' : 'var(--text)',
-  border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
-  borderRadius: 8,
-  padding: '0.5rem 0.8rem',
-  fontSize: '0.9rem',
-  fontWeight: active ? 700 : 400,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-})
+function Chip({ active, onClick, children, style }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '0.45rem 0.9rem',
+        borderRadius: 50,
+        background: active ? 'var(--accent)' : 'var(--card)',
+        border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+        color: active ? '#fff' : 'var(--text2)',
+        fontSize: '0.9rem',
+        fontWeight: active ? 700 : 400,
+        ...style,
+      }}
+    >
+      {children}
+    </button>
+  )
+}
