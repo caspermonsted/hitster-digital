@@ -34,8 +34,7 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
 
   for (const decade of decades) {
     const [from, to] = DECADE_RANGES[decade]
-    const midYear = Math.floor((from + to) / 2)
-    let q = `year:${midYear}`
+    let q = `year:${from}-${to}`
     if (genre && genre !== 'all') q += ` genre:${genre}`
 
     const url = `/search?q=${encodeURIComponent(q)}&type=track&limit=20`
