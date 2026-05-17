@@ -2,6 +2,48 @@ import { useState, useEffect, useRef } from 'react'
 import { fetchTracks } from '../spotify/api'
 import { initPlayer, playSong, pauseSong } from '../spotify/player'
 
+const DEMO_TRACKS = [
+  { uri: 'd1', title: 'Bohemian Rhapsody', artist: 'Queen', year: 1975, albumArt: null },
+  { uri: 'd2', title: 'Like a Prayer', artist: 'Madonna', year: 1989, albumArt: null },
+  { uri: 'd3', title: 'Smells Like Teen Spirit', artist: 'Nirvana', year: 1991, albumArt: null },
+  { uri: 'd4', title: 'Rolling in the Deep', artist: 'Adele', year: 2010, albumArt: null },
+  { uri: 'd5', title: 'Shape of You', artist: 'Ed Sheeran', year: 2017, albumArt: null },
+  { uri: 'd6', title: 'Stayin\' Alive', artist: 'Bee Gees', year: 1977, albumArt: null },
+  { uri: 'd7', title: 'Billie Jean', artist: 'Michael Jackson', year: 1982, albumArt: null },
+  { uri: 'd8', title: 'Mr. Brightside', artist: 'The Killers', year: 2003, albumArt: null },
+  { uri: 'd9', title: 'Gold Digger', artist: 'Kanye West', year: 2005, albumArt: null },
+  { uri: 'd10', title: 'Blinding Lights', artist: 'The Weeknd', year: 2019, albumArt: null },
+  { uri: 'd11', title: 'Hotel California', artist: 'Eagles', year: 1977, albumArt: null },
+  { uri: 'd12', title: 'Sweet Child O\' Mine', artist: 'Guns N\' Roses', year: 1987, albumArt: null },
+  { uri: 'd13', title: 'Baby One More Time', artist: 'Britney Spears', year: 1998, albumArt: null },
+  { uri: 'd14', title: 'Crazy in Love', artist: 'Beyoncé', year: 2003, albumArt: null },
+  { uri: 'd15', title: 'Happy', artist: 'Pharrell Williams', year: 2013, albumArt: null },
+  { uri: 'd16', title: 'Born to Run', artist: 'Bruce Springsteen', year: 1975, albumArt: null },
+  { uri: 'd17', title: 'Push It', artist: 'Salt-N-Pepa', year: 1987, albumArt: null },
+  { uri: 'd18', title: 'Lose Yourself', artist: 'Eminem', year: 2002, albumArt: null },
+  { uri: 'd19', title: 'Since U Been Gone', artist: 'Kelly Clarkson', year: 2004, albumArt: null },
+  { uri: 'd20', title: 'Old Town Road', artist: 'Lil Nas X', year: 2019, albumArt: null },
+  { uri: 'd21', title: 'Johnny B. Goode', artist: 'Chuck Berry', year: 1958, albumArt: null },
+  { uri: 'd22', title: 'Superstition', artist: 'Stevie Wonder', year: 1972, albumArt: null },
+  { uri: 'd23', title: 'Roxanne', artist: 'The Police', year: 1978, albumArt: null },
+  { uri: 'd24', title: 'Vogue', artist: 'Madonna', year: 1990, albumArt: null },
+  { uri: 'd25', title: 'Waterfalls', artist: 'TLC', year: 1994, albumArt: null },
+  { uri: 'd26', title: 'Yeah!', artist: 'Usher', year: 2004, albumArt: null },
+  { uri: 'd27', title: 'Somebody That I Used to Know', artist: 'Gotye', year: 2011, albumArt: null },
+  { uri: 'd28', title: 'Levitating', artist: 'Dua Lipa', year: 2020, albumArt: null },
+  { uri: 'd29', title: 'As It Was', artist: 'Harry Styles', year: 2022, albumArt: null },
+  { uri: 'd30', title: 'I Will Always Love You', artist: 'Whitney Houston', year: 1992, albumArt: null },
+]
+
+function shuffled(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
 const TEAM_COLORS = ['#c4533a', '#3a5d4a', '#2a4a7a', '#a86e2a']
 
 const PHASE = {
@@ -56,9 +98,14 @@ export default function Game({ settings, onQuit }) {
   useEffect(() => {
     async function init() {
       try {
-        await initPlayer()
-        const t = await fetchTracks(settings)
-        if (t.length === 0) throw new Error('Ingen sange fundet med de valgte indstillinger.')
+        let t
+        if (settings.demo) {
+          t = shuffled(DEMO_TRACKS).slice(0, settings.rounds || 20)
+        } else {
+          await initPlayer()
+          t = await fetchTracks(settings)
+          if (t.length === 0) throw new Error('No songs found with the selected settings.')
+        }
         setTracks(t)
         const a1 = randomAnchorYear(settings.decades)
         let a2 = randomAnchorYear(settings.decades)
@@ -81,7 +128,7 @@ export default function Game({ settings, onQuit }) {
 
   async function handlePlay() {
     try {
-      await playSong(currentTrack.uri)
+      if (!settings.demo) await playSong(currentTrack.uri)
       setPhase(PHASE.LISTENING)
       setPlaying(true)
       setProgress(0)
@@ -285,7 +332,9 @@ export default function Game({ settings, onQuit }) {
           <span className="mono" style={{ fontSize: '0.62rem' }}>⏸</span>
         </button>
         <div style={{ textAlign: 'center' }}>
-          <div className="mono" style={{ fontSize: '0.6rem' }}>ROUND {trackIdx + 1} · TURN</div>
+          <div className="mono" style={{ fontSize: '0.6rem' }}>
+            ROUND {trackIdx + 1} · TURN{settings.demo ? ' · DEMO' : ''}
+          </div>
           <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 700, fontSize: '1rem', color: team.color }}>
             {team.name}'s turn
           </div>

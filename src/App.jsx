@@ -18,7 +18,7 @@ export default function App() {
   }
 
   function handleStart(settings) {
-    setGameSettings(settings)
+    setGameSettings(prev => ({ ...(prev || {}), ...settings }))
     setPage('game')
   }
 
@@ -32,8 +32,13 @@ export default function App() {
     setPage('login')
   }
 
+  function handleDemo() {
+    setPage('setup')
+    setGameSettings({ demo: true })
+  }
+
   if (page === 'callback') return <Callback onDone={handleLoggedIn} />
-  if (page === 'login') return <Login />
+  if (page === 'login') return <Login onDemo={handleDemo} />
   if (page === 'setup') return <Setup onStart={handleStart} onLogout={handleLogout} />
   if (page === 'game') return <Game settings={gameSettings} onQuit={handleQuit} />
   return null

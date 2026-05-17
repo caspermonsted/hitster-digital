@@ -1,6 +1,6 @@
 import { login } from '../spotify/auth'
 
-export default function Login() {
+export default function Login({ onDemo }) {
   return (
     <div style={{
       minHeight: '100%',
@@ -144,9 +144,11 @@ export default function Login() {
             <SpotifyLogo />
           </div>
         </button>
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 1.25rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 1.25rem' }}>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.14em', color: 'var(--muted)' }}>REQUIRES SPOTIFY PREMIUM</span>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.14em', color: 'var(--muted)' }}>SIDE 01 / 04</span>
+          <button onClick={onDemo} className="btn-ghost" style={{ fontSize: '0.55rem', padding: '0.2rem 0.5rem', letterSpacing: '0.12em' }}>
+            DEMO MODE
+          </button>
         </div>
       </div>
     </div>
