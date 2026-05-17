@@ -52,6 +52,7 @@ const PHASE = {
   LISTENING: 'listening',
   PLACED: 'placed',
   REVEALED: 'revealed',
+  JUDGED: 'judged',
   DONE: 'done',
 }
 
@@ -78,6 +79,7 @@ export default function Game({ settings, onQuit }) {
     }))
   )
   const [placedSlot, setPlacedSlot] = useState(null)
+  const [yearCorrect, setYearCorrect] = useState(null)
   const [isCorrect, setIsCorrect] = useState(null)
   const [error, setError] = useState(null)
   const [playing, setPlaying] = useState(false)
@@ -90,7 +92,7 @@ export default function Game({ settings, onQuit }) {
 
   const songLen = 180
   useEffect(() => {
-    if (!playing || phase === PHASE.REVEALED) return
+    if (!playing || phase === PHASE.REVEALED || phase === PHASE.JUDGED) return
     const t = setInterval(() => setProgress(p => (p + 1) % songLen), 1000)
     return () => clearInterval(t)
   }, [playing, phase])
@@ -183,18 +185,24 @@ export default function Game({ settings, onQuit }) {
     const year = currentTrack.year
     const prevYear = placedSlot > 0 ? timeline[placedSlot - 1].year : -Infinity
     const nextYear = placedSlot < timeline.length ? timeline[placedSlot].year : Infinity
-    const correct = year >= prevYear && year <= nextYear
-    setIsCorrect(correct)
+    const yc = year >= prevYear && year <= nextYear
+    setYearCorrect(yc)
+    setPhase(PHASE.REVEALED)
+    setPlaying(false)
+  }
 
+  function handleJudge(guessedTitle) {
+    const correct = yearCorrect && guessedTitle
+    setIsCorrect(correct)
     if (correct) {
-      const newCard = { title: currentTrack.title, artist: currentTrack.artist, year, albumArt: currentTrack.albumArt }
+      const timeline = currentTeam.timeline
+      const newCard = { title: currentTrack.title, artist: currentTrack.artist, year: currentTrack.year, albumArt: currentTrack.albumArt }
       const newTimeline = [...timeline.slice(0, placedSlot), newCard, ...timeline.slice(placedSlot)]
       setTeams(prev => prev.map((t, i) =>
         i === teamIdx ? { ...t, timeline: newTimeline, score: t.score + 1 } : t
       ))
     }
-    setPhase(PHASE.REVEALED)
-    setPlaying(false)
+    setPhase(PHASE.JUDGED)
   }
 
   function handleNext() {
@@ -205,6 +213,7 @@ export default function Game({ settings, onQuit }) {
       setTrackIdx(nextIdx)
       setTeamIdx(t => 1 - t)
       setPlacedSlot(null)
+      setYearCorrect(null)
       setIsCorrect(null)
       setProgress(0)
       setPlaying(false)
@@ -313,7 +322,7 @@ export default function Game({ settings, onQuit }) {
 
   // ─── Main game ────────────────────────────────────────────────
   const spinning = playing && (phase === PHASE.LISTENING || phase === PHASE.PLACED)
-  const revealed = phase === PHASE.REVEALED
+  const revealed = phase === PHASE.REVEALED || phase === PHASE.JUDGED
   const team = currentTeam
 
   return (
@@ -396,7 +405,7 @@ export default function Game({ settings, onQuit }) {
       </div>
 
       {/* Playback bar */}
-      {phase !== PHASE.READY && phase !== PHASE.REVEALED && (
+      {phase !== PHASE.READY && phase !== PHASE.REVEALED && phase !== PHASE.JUDGED && (
         <div style={{ padding: '0 1.25rem 0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button
             onClick={() => setPlaying(p => !p)}
@@ -424,9 +433,13 @@ export default function Game({ settings, onQuit }) {
         <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.85rem', color: 'var(--ink2)', lineHeight: 1.4 }}>
           {phase === PHASE.READY && 'Press Play — then drag the card onto the timeline.'}
           {phase === PHASE.LISTENING && 'Listen — then drag the card onto the timeline.'}
-          {phase === PHASE.PLACED && 'Placed. Discuss the title and artist — then reveal the answer.'}
-          {phase === PHASE.REVEALED && isCorrect && <><em>Correctly placed.</em> The card is yours.</>}
-          {phase === PHASE.REVEALED && !isCorrect && <><em>Wrong placement.</em> Card goes back in the deck.</>}
+          {phase === PHASE.PLACED && 'Card placed. Discuss the title and artist — then reveal the answer.'}
+          {phase === PHASE.REVEALED && (yearCorrect
+            ? <><em>Year correct.</em> Did they also guess the artist & title?</>
+            : <><em>Wrong year.</em> Did they guess the artist & title anyway?</>
+          )}
+          {phase === PHASE.JUDGED && isCorrect && <><em>+1 card.</em> Correct placement and correct guess!</>}
+          {phase === PHASE.JUDGED && !isCorrect && <><em>No card.</em> Better luck next round.</>}
         </span>
       </div>
 
@@ -470,8 +483,8 @@ export default function Game({ settings, onQuit }) {
                     }}
                   >
                     {isPlaced ? (
-                      phase === PHASE.REVEALED
-                        ? <RevealedTLCard song={currentTrack} correct={isCorrect} teamColor={team.color} />
+                      (phase === PHASE.REVEALED || phase === PHASE.JUDGED)
+                        ? <RevealedTLCard song={currentTrack} yearCorrect={yearCorrect} correct={isCorrect} teamColor={team.color} />
                         : <MiniMysteryCard />
                     ) : (
                       <span style={{ color: isHover ? 'var(--accent)' : 'var(--border)', fontFamily: "'JetBrains Mono', monospace", fontSize: '0.9rem' }}>+</span>
@@ -514,12 +527,46 @@ export default function Game({ settings, onQuit }) {
           </button>
         )}
         {phase === PHASE.REVEALED && (
+          <div style={{ display: 'flex' }}>
+            <button
+              onClick={() => handleJudge(false)}
+              style={{
+                flex: 1, padding: '1rem 0.75rem',
+                background: 'var(--surface)', border: 'none', borderRight: '1px solid var(--border)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem',
+                cursor: 'pointer',
+              }}
+            >
+              <span style={{ fontSize: '1.4rem' }}>✕</span>
+              <span className="mono" style={{ fontSize: '0.6rem', color: 'var(--accent)' }}>WRONG</span>
+              <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.75rem', color: 'var(--ink2)' }}>
+                {yearCorrect ? 'Missed artist / title' : 'Wrong year & guess'}
+              </span>
+            </button>
+            <button
+              onClick={() => handleJudge(true)}
+              style={{
+                flex: 1, padding: '1rem 0.75rem',
+                background: 'var(--ink)', border: 'none',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem',
+                cursor: 'pointer',
+              }}
+            >
+              <span style={{ fontSize: '1.4rem', color: 'var(--bg)' }}>✓</span>
+              <span className="mono" style={{ fontSize: '0.6rem', color: 'var(--accent2)' }}>CORRECT</span>
+              <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.75rem', color: 'var(--bg)', opacity: 0.7 }}>
+                {yearCorrect ? 'Got artist & title' : 'Got artist & title'}
+              </span>
+            </button>
+          </div>
+        )}
+        {phase === PHASE.JUDGED && (
           <button onClick={handleNext} className="btn-primary">
             <div>
               <div className="mono" style={{ fontSize: '0.6rem', color: 'rgba(196,200,180,0.7)', marginBottom: 2 }}>
-                {isCorrect ? '+1 CARD' : 'NO WIN'}
+                {isCorrect ? '+1 CARD' : 'NO CARD'}
               </div>
-              <span>Next team → {teams[1 - teamIdx].name}</span>
+              <span>Next — {teams[1 - teamIdx].name}'s turn</span>
             </div>
             <span>→</span>
           </button>
@@ -696,25 +743,31 @@ function MiniMysteryCard() {
   )
 }
 
-function RevealedTLCard({ song, correct, teamColor }) {
+function RevealedTLCard({ song, yearCorrect, correct, teamColor }) {
+  // During REVEALED phase correct is null (not judged yet); use yearCorrect for color
+  const judged = correct !== null
+  const borderColor = judged ? (correct ? 'var(--green)' : 'var(--accent)') : (yearCorrect ? 'var(--green)' : 'var(--accent)')
+  const yearColor = yearCorrect ? 'var(--green)' : 'var(--accent)'
   return (
     <div style={{
       width: 72, height: 86,
-      background: correct ? 'rgba(58,93,74,0.08)' : 'rgba(196,83,58,0.08)',
-      border: `1px solid ${correct ? 'var(--green)' : 'var(--accent)'}`,
+      background: yearCorrect ? 'rgba(58,93,74,0.08)' : 'rgba(196,83,58,0.08)',
+      border: `1px solid ${borderColor}`,
       borderRadius: 3,
       display: 'flex', flexDirection: 'column',
       padding: '5px',
       position: 'relative',
     }}>
       <div style={{ width: 6, height: 6, borderRadius: '50%', background: teamColor, position: 'absolute', top: 4, right: 4 }} />
-      <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 900, fontSize: '1.3rem', color: correct ? 'var(--green)' : 'var(--accent)', lineHeight: 1, marginBottom: 'auto' }}>{song?.year}</span>
+      <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 900, fontSize: '1.3rem', color: yearColor, lineHeight: 1, marginBottom: 'auto' }}>{song?.year}</span>
       <div>
         <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song?.artist}</div>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.5rem', color: 'var(--muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song?.title}</div>
-        <div className="mono" style={{ fontSize: '0.5rem', marginTop: 2, color: correct ? 'var(--green)' : 'var(--accent)' }}>
-          {correct ? 'KEEPER' : 'WRONG'}
-        </div>
+        {judged && (
+          <div className="mono" style={{ fontSize: '0.5rem', marginTop: 2, color: correct ? 'var(--green)' : 'var(--accent)' }}>
+            {correct ? 'KEEPER' : 'NO CARD'}
+          </div>
+        )}
       </div>
     </div>
   )
