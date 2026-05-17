@@ -37,20 +37,19 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
     let q = `year:${from}-${to}`
     if (genre && genre !== 'all') q += ` genre:${genre}`
 
-    const url = `/search?q=pop&type=track&limit=10`
-    debugLines.push(`${decade}: TEST q=pop`)
+    const qEncoded = `year:${from}-${to}` + (genre && genre !== 'all' ? `+genre:${genre}` : '')
+    const url = `/search?q=${qEncoded}&type=track&limit=50`
+    debugLines.push(`${decade}: q="${qEncoded}"`)
 
     const data = await apiFetch(url)
     const total = data.tracks?.items?.length ?? 0
     debugLines.push(`${decade}: ${total} sange returneret`)
 
     if (data.tracks?.items) {
-      const filtered = data.tracks.items.filter(t =>
-        t.popularity >= min &&
-        t.popularity <= max &&
-        t.album?.release_date
-      )
-      debugLines.push(`${decade}: ${filtered.length} efter popularitetsfilter (${min}-${max})`)
+      const popularities = data.tracks.items.map(t => t.popularity).join(',')
+      debugLines.push(`${decade}: populariteter: ${popularities}`)
+      const filtered = data.tracks.items.filter(t => t.album?.release_date)
+      debugLines.push(`${decade}: ${filtered.length} sange (uden popularitetsfilter)`)
       all.push(...filtered)
     }
   }
