@@ -1,5 +1,5 @@
 const CLIENT_ID = 'c12f2deae23b40238f1c3602611e37cf'
-const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI || 'https://localhost:5173/callback'
+const REDIRECT_URI = window.location.origin + '/callback'
 const SCOPES = [
   'streaming',
   'user-read-email',
