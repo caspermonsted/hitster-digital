@@ -44,6 +44,8 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
   const seeds = seedStr.split(',').slice(0, 2).join(',')
   const all = []
 
+  const debugLines = []
+
   for (const decade of decades) {
     const [from, to] = DECADE_RANGES[decade]
     const params = new URLSearchParams({
@@ -51,18 +53,23 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
       min_popularity: String(min),
       limit: '100',
     })
-    const data = await apiFetch(`/recommendations?${params}`)
+    const url = `/recommendations?${params}`
+    debugLines.push(`Kalder: ${url}`)
+    const data = await apiFetch(url)
+    const total = data.tracks?.length ?? 0
+    debugLines.push(`${decade}: ${total} sange fra API`)
     if (data.tracks) {
       const filtered = data.tracks.filter(t => {
         if (!t.album?.release_date) return false
         const year = parseInt(t.album.release_date.slice(0, 4))
         return year >= from && year <= to
       })
+      debugLines.push(`${decade}: ${filtered.length} efter årstal-filter (${from}-${to})`)
       all.push(...filtered)
     }
   }
 
-  if (all.length === 0) throw new Error('Ingen sange fundet. Prøv at vælge flere årtier eller lavere sværhedsgrad.')
+  if (all.length === 0) throw new Error(debugLines.join('\n'))
 
   const seen = new Set()
   const unique = all.filter(t => {

@@ -105,7 +105,7 @@ export default function Game({ settings, onQuit }) {
     return (
       <div className="page" style={{ justifyContent: 'center', alignItems: 'center', gap: '1rem', textAlign: 'center' }}>
         <div style={{ fontSize: '2rem' }}>⚠️</div>
-        <p style={{ color: 'var(--accent)' }}>{error}</p>
+        <p style={{ color: 'var(--accent)', whiteSpace: 'pre-wrap', fontSize: '0.8rem', textAlign: 'left' }}>{error}</p>
         <button className="btn-secondary" onClick={onQuit} style={{ width: 'auto', padding: '0.75rem 2rem' }}>
           Tilbage
         </button>
