@@ -7,7 +7,7 @@ async function apiFetch(path) {
   })
   if (res.status === 204) return {}
   const text = await res.text()
-  if (!res.ok) throw new Error(`HTTP ${res.status} fra Spotify:\n${text.slice(0, 300)}`)
+  if (!res.ok) throw new Error(`Spotify fejl (${res.status})`)
   return JSON.parse(text)
 }
 
@@ -22,39 +22,40 @@ const DECADE_RANGES = {
 }
 
 const POPULARITY = {
-  easy:   { min: 75, max: 100 },
-  medium: { min: 45, max: 100 },
-  hard:   { min: 20, max: 65 },
+  easy:   { min: 60, max: 100 },
+  medium: { min: 30, max: 100 },
+  hard:   { min: 0,  max: 100 },
 }
 
 export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
   const { min, max } = POPULARITY[difficulty]
   const all = []
-  const debugLines = []
 
   for (const decade of decades) {
     const [from, to] = DECADE_RANGES[decade]
     let q = `year:${from}-${to}`
-    if (genre && genre !== 'all') q += ` genre:${genre}`
+    if (genre && genre !== 'all') q += `+genre:${genre}`
 
-    const qEncoded = `year:${from}-${to}` + (genre && genre !== 'all' ? `+genre:${genre}` : '')
-    const url = `/search?q=${qEncoded}&type=track&limit=10`
-    debugLines.push(`${decade}: q="${qEncoded}"`)
-
-    const data = await apiFetch(url)
-    const total = data.tracks?.items?.length ?? 0
-    debugLines.push(`${decade}: ${total} sange returneret`)
-
-    if (data.tracks?.items) {
-      const popularities = data.tracks.items.map(t => t.popularity).join(',')
-      debugLines.push(`${decade}: populariteter: ${popularities}`)
-      const filtered = data.tracks.items.filter(t => t.album?.release_date)
-      debugLines.push(`${decade}: ${filtered.length} sange (uden popularitetsfilter)`)
-      all.push(...filtered)
+    // limit=10 er max der virker med year-filter på Spotify's API
+    for (const offset of [0, 10, 20]) {
+      const url = `/search?q=${q}&type=track&limit=10&offset=${offset}`
+      try {
+        const data = await apiFetch(url)
+        if (data.tracks?.items) {
+          const filtered = data.tracks.items.filter(t =>
+            t.album?.release_date &&
+            t.popularity >= min &&
+            t.popularity <= max
+          )
+          all.push(...filtered)
+        }
+      } catch {
+        break
+      }
     }
   }
 
-  if (all.length === 0) throw new Error(debugLines.join('\n'))
+  if (all.length === 0) throw new Error('Ingen sange fundet. Prøv andre indstillinger.')
 
   const seen = new Set()
   const unique = all.filter(t => {
