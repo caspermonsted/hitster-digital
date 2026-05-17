@@ -621,7 +621,18 @@ function Vinyl({ size, spinning, color, year }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           zIndex: 1,
           position: 'relative',
+          overflow: 'hidden',
         }}>
+          {/* Off-center streak so spinning is visible */}
+          <div style={{
+            position: 'absolute',
+            width: size * 0.04, height: size * 0.13,
+            background: 'rgba(255,255,255,0.25)',
+            borderRadius: size * 0.02,
+            top: size * 0.04,
+            left: '50%',
+            transform: 'translateX(-50%)',
+          }} />
           {year ? (
             <span style={{
               fontFamily: "'Playfair Display', serif",
@@ -629,9 +640,10 @@ function Vinyl({ size, spinning, color, year }) {
               fontSize: size * 0.12,
               color: '#fff',
               letterSpacing: '-0.02em',
+              position: 'relative', zIndex: 1,
             }}>{year}</span>
           ) : (
-            <span style={{ fontSize: size * 0.14, color: 'rgba(255,255,255,0.8)' }}>♪</span>
+            <span style={{ fontSize: size * 0.14, color: 'rgba(255,255,255,0.8)', position: 'relative', zIndex: 1 }}>♪</span>
           )}
           <div style={{
             position: 'absolute',
@@ -641,20 +653,6 @@ function Vinyl({ size, spinning, color, year }) {
           }} />
         </div>
       </div>
-
-      {/* Tonearm — outside the spinning disc, stays fixed */}
-      <div style={{
-        position: 'absolute',
-        top: size * 0.04,
-        right: size * -0.04,
-        width: 3,
-        height: size * 0.52,
-        background: '#8a8278',
-        borderRadius: 2,
-        transformOrigin: 'top center',
-        transform: 'rotate(-30deg)',
-        zIndex: 2,
-      }} />
     </div>
   )
 }
