@@ -36,22 +36,15 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
     let q = `year:${from}-${to}`
     if (genre && genre !== 'all') q += `+genre:${genre}`
 
-    // limit=10 er max der virker med year-filter på Spotify's API
-    for (const offset of [0, 10, 20]) {
-      const url = `/search?q=${q}&type=track&limit=10&offset=${offset}`
-      try {
-        const data = await apiFetch(url)
-        if (data.tracks?.items) {
-          const filtered = data.tracks.items.filter(t =>
-            t.album?.release_date &&
-            t.popularity >= min &&
-            t.popularity <= max
-          )
-          all.push(...filtered)
-        }
-      } catch {
-        break
-      }
+    const url = `/search?q=${q}&type=track&limit=10`
+    const data = await apiFetch(url)
+    if (data.tracks?.items) {
+      const filtered = data.tracks.items.filter(t =>
+        t.album?.release_date &&
+        t.popularity >= min &&
+        t.popularity <= max
+      )
+      all.push(...filtered)
     }
   }
 
