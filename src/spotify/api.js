@@ -6,9 +6,9 @@ async function apiFetch(path) {
     headers: { Authorization: `Bearer ${token}` },
   })
   if (res.status === 204) return {}
-  const data = await res.json()
-  if (data.error) throw new Error(`Spotify: ${data.error.message} (${data.error.status})`)
-  return data
+  const text = await res.text()
+  if (!res.ok) throw new Error(`HTTP ${res.status} fra Spotify:\n${text.slice(0, 300)}`)
+  return JSON.parse(text)
 }
 
 const DECADE_RANGES = {

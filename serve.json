@@ -1,0 +1,13 @@
+{
+  "headers": [
+    {
+      "source": "**",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://sdk.scdn.co; connect-src 'self' https://api.spotify.com https://accounts.spotify.com https://sdk.scdn.co wss://dealer.spotify.com; img-src 'self' https://i.scdn.co data:; media-src 'self' https://*.scdn.co; style-src 'self' 'unsafe-inline';"
+        }
+      ]
+    }
+  ]
+}
