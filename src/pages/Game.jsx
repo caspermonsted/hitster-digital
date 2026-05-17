@@ -26,6 +26,18 @@ export default function Game({ settings, onQuit }) {
   const [error, setError] = useState(null)
   const [playerReady, setPlayerReady] = useState(false)
 
+  function randomAnchorYear(decades) {
+    const DECADE_RANGES = {
+      '60s': [1960,1969], '70s': [1970,1979], '80s': [1980,1989],
+      '90s': [1990,1999], '00s': [2000,2009], '10s': [2010,2019], '20s': [2020,2025],
+    }
+    const all = decades.flatMap(d => {
+      const [from, to] = DECADE_RANGES[d]
+      return Array.from({ length: to - from + 1 }, (_, i) => from + i)
+    })
+    return all[Math.floor(Math.random() * all.length)]
+  }
+
   useEffect(() => {
     async function init() {
       try {
@@ -34,6 +46,13 @@ export default function Game({ settings, onQuit }) {
         const t = await fetchTracks(settings)
         if (t.length === 0) throw new Error('Ingen sange fundet med de valgte indstillinger.')
         setTracks(t)
+        const anchor1 = randomAnchorYear(settings.decades)
+        let anchor2 = randomAnchorYear(settings.decades)
+        while (anchor2 === anchor1) anchor2 = randomAnchorYear(settings.decades)
+        setTeams([
+          { name: settings.team1, timeline: [{ title: null, artist: null, year: anchor1, isAnchor: true }], score: 0 },
+          { name: settings.team2, timeline: [{ title: null, artist: null, year: anchor2, isAnchor: true }], score: 0 },
+        ])
         setPhase(PHASE.READY)
       } catch (e) {
         setError(e.message)

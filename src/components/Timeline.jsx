@@ -59,6 +59,24 @@ function GapButton({ index, selected, onClick, disabled, isFirst, isLast, cards 
 }
 
 function TimelineCard({ card }) {
+  if (card.isAnchor) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.5rem',
+        background: 'var(--surface)',
+        border: '2px solid var(--accent2)',
+        borderRadius: 10,
+        padding: '0.6rem 0.8rem',
+      }}>
+        <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Startår</span>
+        <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--accent2)' }}>{card.year}</span>
+      </div>
+    )
+  }
+
   return (
     <div style={{
       display: 'flex',
@@ -70,33 +88,17 @@ function TimelineCard({ card }) {
       padding: '0.6rem 0.8rem',
     }}>
       {card.albumArt && (
-        <img
-          src={card.albumArt}
-          alt=""
-          style={{ width: 44, height: 44, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }}
-        />
+        <img src={card.albumArt} alt="" style={{ width: 44, height: 44, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }} />
       )}
       <div style={{ minWidth: 0 }}>
-        <div style={{
-          fontSize: '0.85rem',
-          fontWeight: 700,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}>
+        <div style={{ fontSize: '0.85rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {card.title}
         </div>
         <div style={{ fontSize: '0.75rem', color: 'var(--muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {card.artist}
         </div>
       </div>
-      <div style={{
-        marginLeft: 'auto',
-        fontSize: '1rem',
-        fontWeight: 900,
-        color: 'var(--accent2)',
-        flexShrink: 0,
-      }}>
+      <div style={{ marginLeft: 'auto', fontSize: '1rem', fontWeight: 900, color: 'var(--accent2)', flexShrink: 0 }}>
         {card.year}
       </div>
     </div>
