@@ -53,6 +53,7 @@ const PHASE = {
   PLACED: 'placed',
   REVEALED: 'revealed',
   JUDGED: 'judged',
+  HANDOFF: 'handoff',
   DONE: 'done',
 }
 
@@ -84,6 +85,8 @@ export default function Game({ settings, onQuit }) {
   const [error, setError] = useState(null)
   const [playing, setPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [roundCount, setRoundCount] = useState(0)
+  const [loadStep, setLoadStep] = useState(0)
 
   // drag state
   const [drag, setDrag] = useState(null)
@@ -96,6 +99,13 @@ export default function Game({ settings, onQuit }) {
     const t = setInterval(() => setProgress(p => (p + 1) % songLen), 1000)
     return () => clearInterval(t)
   }, [playing, phase])
+
+  useEffect(() => {
+    if (phase !== PHASE.LOADING) return
+    const steps = [0, 1, 2, 3, 4]
+    const timers = steps.map(i => setTimeout(() => setLoadStep(i + 1), i * 600))
+    return () => timers.forEach(clearTimeout)
+  }, [phase])
 
   useEffect(() => {
     async function init() {
@@ -207,19 +217,25 @@ export default function Game({ settings, onQuit }) {
   const TARGET = 10
 
   function handleNext() {
-    const gameOver = teams.some(t => t.score >= TARGET) || trackIdx + 1 >= tracks.length
+    const newScore = isCorrect ? teams[teamIdx].score + 1 : teams[teamIdx].score
+    const gameOver = newScore >= TARGET || teams[1 - teamIdx].score >= TARGET || trackIdx + 1 >= tracks.length
     if (gameOver) {
       setPhase(PHASE.DONE)
     } else {
-      setTrackIdx(t => t + 1)
-      setTeamIdx(t => 1 - t)
-      setPlacedSlot(null)
-      setYearCorrect(null)
-      setIsCorrect(null)
-      setProgress(0)
-      setPlaying(false)
-      setPhase(PHASE.READY)
+      setRoundCount(r => r + 1)
+      setPhase(PHASE.HANDOFF)
     }
+  }
+
+  function handleBeginTurn() {
+    setTrackIdx(t => t + 1)
+    setTeamIdx(t => 1 - t)
+    setPlacedSlot(null)
+    setYearCorrect(null)
+    setIsCorrect(null)
+    setProgress(0)
+    setPlaying(false)
+    setPhase(PHASE.READY)
   }
 
   // ─── Error ───────────────────────────────────────────────────
@@ -237,10 +253,99 @@ export default function Game({ settings, onQuit }) {
 
   // ─── Loading ─────────────────────────────────────────────────
   if (phase === PHASE.LOADING) {
+    const steps = [
+      'Connecting to Spotify…',
+      'Crate-digging for tracks…',
+      'Filtering by decade & genre…',
+      'Shuffling the setlist…',
+      'Dropping the needle…',
+    ]
     return (
-      <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '1rem', background: 'var(--bg)' }}>
-        <Vinyl size={80} spinning color="var(--muted)" />
-        <span className="mono" style={{ fontSize: '0.68rem', animation: 'pulse 1.5s ease-in-out infinite' }}>CONNECTING TO SPOTIFY…</span>
+      <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: 'var(--bg)', maxWidth: 480, margin: '0 auto', padding: '2rem 1.5rem' }}>
+        <Vinyl size={120} spinning color={TEAM_COLORS[0]} />
+        <div style={{ marginTop: '2rem', width: '100%', maxWidth: 300 }}>
+          <div className="mono" style={{ fontSize: '0.55rem', color: 'var(--accent)', marginBottom: '0.75rem', letterSpacing: '0.18em' }}>
+            PREPARING YOUR SET
+          </div>
+          {steps.map((s, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', gap: '0.6rem',
+              marginBottom: '0.4rem',
+              opacity: loadStep > i ? 1 : 0.2,
+              transition: 'opacity 0.4s ease',
+            }}>
+              <span style={{ color: loadStep > i ? 'var(--green)' : 'var(--border)', fontSize: '0.75rem', flexShrink: 0 }}>
+                {loadStep > i ? '✓' : '·'}
+              </span>
+              <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.85rem', color: 'var(--ink2)' }}>{s}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // ─── Handoff ─────────────────────────────────────────────────
+  if (phase === PHASE.HANDOFF) {
+    const nextTeam = teams[1 - teamIdx]
+    const prevTeam = teams[teamIdx]
+    return (
+      <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg)', maxWidth: 480, margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.6rem 1.25rem', borderBottom: '1px solid var(--border)' }}>
+          <span className="mono" style={{ fontSize: '0.6rem' }}>SIDE A · ROUND {roundCount + 1}</span>
+          <span className="mono" style={{ fontSize: '0.6rem' }}>HANDOFF</span>
+        </div>
+
+        {/* Main */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 1.5rem', gap: '0.5rem', textAlign: 'center' }}>
+          <Vinyl size={110} spinning={false} color={nextTeam.color} />
+          <div style={{ marginTop: '1.5rem' }}>
+            <div className="mono" style={{ fontSize: '0.58rem', letterSpacing: '0.18em', color: 'var(--muted)', marginBottom: '0.4rem' }}>PASS THE PHONE TO</div>
+            <div style={{
+              fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 900,
+              fontSize: 'clamp(3rem, 14vw, 4.5rem)', lineHeight: 0.9,
+              letterSpacing: '-0.03em', color: nextTeam.color,
+            }}>{nextTeam.name}</div>
+          </div>
+
+          {/* Last result */}
+          <div style={{ marginTop: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', border: '1px solid var(--border)', background: 'var(--surface)' }}>
+            <span style={{ fontSize: '0.9rem' }}>{isCorrect ? '✓' : '✕'}</span>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.85rem', color: 'var(--ink2)' }}>
+              {prevTeam.name} — {isCorrect ? '+1 card' : 'no card this round'}
+            </span>
+          </div>
+
+          {/* Scores */}
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+            {teams.map((t, i) => (
+              <div key={i} style={{
+                padding: '0.5rem 0.9rem',
+                background: i === teamIdx ? 'var(--ink)' : 'var(--surface)',
+                border: '1px solid var(--border)',
+                color: i === teamIdx ? 'var(--bg)' : 'var(--ink)',
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+              }}>
+                <div style={{ width: 7, height: 7, borderRadius: '50%', background: i === teamIdx ? 'var(--bg)' : t.color, flexShrink: 0 }} />
+                <span className="mono" style={{ fontSize: '0.62rem' }}>{t.name}</span>
+                <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: '0.95rem' }}>{t.score}<span style={{ opacity: 0.4, fontSize: '0.65rem' }}>/10</span></span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div>
+          <div style={{ borderTop: '3px solid var(--ink)' }} />
+          <button onClick={handleBeginTurn} className="btn-primary">
+            <div>
+              <div className="mono" style={{ fontSize: '0.6rem', color: 'rgba(196,200,180,0.7)', marginBottom: 2 }}>READY TO PLAY?</div>
+              <span>Begin our turn</span>
+            </div>
+            <span>→</span>
+          </button>
+        </div>
       </div>
     )
   }
@@ -249,63 +354,76 @@ export default function Game({ settings, onQuit }) {
   if (phase === PHASE.DONE) {
     const winner = teams[0].score > teams[1].score ? teams[0]
       : teams[1].score > teams[0].score ? teams[1] : null
+    const winnerCards = winner ? winner.timeline.filter(c => !c.isAnchor) : []
 
     return (
-      <div style={{ minHeight: '100%', background: 'var(--bg)', maxWidth: 480, margin: '0 auto' }}>
-        <div style={{ padding: '1.25rem 1.5rem 0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-            <span className="mono" style={{ fontSize: '0.62rem' }}>SIDE A · ISSUE NO. 047</span>
-            <span className="mono" style={{ fontSize: '0.62rem' }}>— end of side a —</span>
-            <span className="mono" style={{ fontSize: '0.62rem' }}>GAME OVER</span>
-          </div>
-          <div style={{ borderTop: '1px solid var(--border)', marginBottom: '1rem' }} />
+      <div style={{ minHeight: '100%', background: 'var(--bg)', maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.6rem 1.25rem', borderBottom: '1px solid var(--border)' }}>
+          <span className="mono" style={{ fontSize: '0.62rem' }}>SIDE A · ISSUE NO. 047</span>
+          <span className="mono" style={{ fontSize: '0.62rem' }}>— END OF SIDE A —</span>
+          <span className="mono" style={{ fontSize: '0.62rem' }}>GAME OVER</span>
         </div>
 
-        <div style={{ padding: '0 1.5rem' }}>
-          <div className="mono" style={{ color: 'var(--accent)', fontSize: '0.62rem', marginBottom: '0.5rem' }}>AND THE NEEDLE LIFTS ON</div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', marginBottom: '0.25rem' }}>
-            <span style={{
-              fontFamily: "'Playfair Display', serif",
-              fontStyle: 'italic', fontWeight: 900,
-              fontSize: '3.5rem', color: 'var(--accent)',
-              lineHeight: 1,
-            }}>{winner ? winner.name : 'Draw'}</span>
-          </div>
-          {winner && (
-            <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1rem', color: 'var(--ink2)', marginBottom: '0.75rem' }}>
-              has won 10 cards!
-            </div>
-          )}
+        <div style={{ flex: 1, padding: '1.25rem 1.5rem 0' }}>
+          <div className="mono" style={{ color: 'var(--accent)', fontSize: '0.62rem', marginBottom: '0.4rem' }}>AND THE NEEDLE LIFTS ON</div>
+          <div style={{ borderTop: '1px solid var(--border)', marginBottom: '1rem' }} />
 
-          {/* Scores */}
-          <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem' }}>
-            {teams.map((t, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.color, flexShrink: 0 }} />
-                <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '0.9rem' }}>{t.name}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.9rem', fontWeight: 700 }}>
-                  {t.score}<span style={{ opacity: 0.4, fontSize: '0.7rem' }}>/10</span>
-                </span>
+          {/* Winner + stamp */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <div>
+              <div style={{
+                fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 900,
+                fontSize: 'clamp(3rem, 14vw, 4.5rem)', lineHeight: 0.86,
+                letterSpacing: '-0.04em', color: winner ? winner.color : 'var(--ink)',
+              }}>{winner ? winner.name : 'Draw'}</div>
+              {winner && <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1rem', color: 'var(--ink2)', marginTop: '0.3rem' }}>has won 10 cards!</div>}
+            </div>
+            {winner && (
+              <div style={{
+                width: 90, height: 90, flexShrink: 0,
+                border: `2px solid ${winner.color}`, borderRadius: '50%',
+                transform: 'rotate(-8deg)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: 0, color: winner.color,
+                boxShadow: `inset 0 0 0 4px var(--bg)`,
+              }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.45rem', letterSpacing: '0.1em' }}>WINNER</div>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 900, fontSize: '1.6rem', lineHeight: 1 }}>{winner.score}</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.45rem', letterSpacing: '0.1em' }}>CARDS · MMXXVI</div>
+              </div>
+            )}
+          </div>
+
+          {/* Standings */}
+          <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.25rem' }}>
+            {[...teams].sort((a, b) => b.score - a.score).map((t, i) => (
+              <div key={t.name} style={{
+                flex: 1, padding: '0.6rem 0.75rem',
+                background: i === 0 && winner ? 'var(--ink)' : 'var(--surface)',
+                border: '1px solid var(--border)',
+                color: i === 0 && winner ? 'var(--bg)' : 'var(--ink)',
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+              }}>
+                <span className="mono" style={{ fontSize: '0.55rem', opacity: 0.5 }}>0{i + 1}</span>
+                <div style={{ width: 7, height: 7, borderRadius: '50%', background: i === 0 && winner ? 'var(--bg)' : t.color, flexShrink: 0 }} />
+                <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '0.85rem', flex: 1 }}>{t.name}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: '0.9rem' }}>{t.score}<span style={{ opacity: 0.4, fontSize: '0.65rem' }}>/10</span></span>
               </div>
             ))}
           </div>
 
           {/* Winning timeline */}
-          {winner && (
+          {winner && winnerCards.length > 0 && (
             <>
-              <div style={{ borderTop: '1px solid var(--border)', marginBottom: '0.75rem' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <div style={{ border: '1px solid var(--accent2)', padding: '1px 4px' }}>
-                    <span className="mono" style={{ fontSize: '0.55rem', color: 'var(--accent2)' }}>A1</span>
-                  </div>
-                  <span className="serif" style={{ fontSize: '0.95rem' }}>Winning timeline · {winner.name.toUpperCase()}</span>
-                </div>
-                <span className="mono" style={{ fontSize: '0.6rem' }}>{winner.timeline.filter(c => !c.isAnchor).length} CARDS</span>
+              <div style={{ borderTop: '1px solid var(--border)', marginBottom: '0.6rem' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
+                <span className="serif" style={{ fontSize: '0.9rem' }}>Winning timeline</span>
+                <span className="mono" style={{ fontSize: '0.58rem', color: 'var(--muted)' }}>{winnerCards.length} CARDS</span>
               </div>
-              <div style={{ overflowX: 'auto', paddingBottom: '0.75rem' }}>
-                <div style={{ display: 'flex', gap: '0.5rem', width: 'max-content' }}>
-                  {winner.timeline.filter(c => !c.isAnchor).map((card, i) => (
+              <div style={{ overflowX: 'auto', paddingBottom: '0.75rem', margin: '0 -1.5rem', padding: '0 1.5rem 0.75rem' }}>
+                <div style={{ display: 'flex', gap: '0.4rem', width: 'max-content' }}>
+                  {winnerCards.map((card, i) => (
                     <MiniCard key={i} card={card} color={winner.color} />
                   ))}
                 </div>
@@ -314,11 +432,21 @@ export default function Game({ settings, onQuit }) {
           )}
         </div>
 
-        <div style={{ padding: '1rem 1.5rem 2rem', marginTop: '1rem' }}>
-          <div style={{ borderTop: '3px solid var(--ink)' }} />
-          <button onClick={onQuit} className="btn-primary">
-            <span>Side A</span>
-            <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>New game</span>
+        {/* Actions */}
+        <div style={{ display: 'flex', borderTop: '3px solid var(--ink)' }}>
+          <button onClick={onQuit} style={{
+            flex: 1, padding: '1rem', background: 'transparent', border: 'none', borderRight: '1px solid var(--border)',
+            display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.1rem', cursor: 'pointer',
+          }}>
+            <span className="mono" style={{ fontSize: '0.55rem', color: 'var(--muted)' }}>FLIP THE RECORD</span>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 800, fontSize: '1.1rem' }}>New game</span>
+          </button>
+          <button onClick={onQuit} style={{
+            flex: 1, padding: '1rem', background: 'var(--ink)', border: 'none', color: 'var(--bg)',
+            display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.1rem', cursor: 'pointer',
+          }}>
+            <span className="mono" style={{ fontSize: '0.55rem', color: 'rgba(196,200,180,0.6)' }}>SAME TEAMS</span>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 800, fontSize: '1.1rem' }}>Play again →</span>
           </button>
         </div>
       </div>
