@@ -5,8 +5,9 @@ async function apiFetch(path) {
   const res = await fetch(`https://api.spotify.com/v1${path}`, {
     headers: { Authorization: `Bearer ${token}` },
   })
+  if (res.status === 204 || res.headers.get('content-length') === '0') return {}
   const data = await res.json()
-  if (data.error) throw new Error(`Spotify API: ${data.error.message} (${data.error.status})`)
+  if (data.error) throw new Error(`Spotify: ${data.error.message} (${data.error.status})`)
   return data
 }
 
@@ -26,26 +27,29 @@ const POPULARITY = {
   hard:   { min: 20, max: 65 },
 }
 
+// Only valid Spotify genre seed values
 const GENRE_SEEDS = {
-  all:       ['pop', 'rock', 'hip-hop', 'dance'],
-  pop:       ['pop', 'dance pop', 'synth-pop'],
-  rock:      ['rock', 'classic rock', 'hard rock'],
-  'hip-hop': ['hip-hop', 'rap'],
-  dance:     ['dance', 'electronic', 'house'],
-  'r&b':     ['r-n-b', 'soul', 'funk'],
+  all:       'pop,rock,hip-hop,dance,r-n-b',
+  pop:       'pop,synth-pop,indie-pop',
+  rock:      'rock,hard-rock,alt-rock',
+  'hip-hop': 'hip-hop',
+  dance:     'dance,edm,electronic',
+  'r&b':     'r-n-b,soul,funk',
 }
 
 export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
-  const { min, max } = POPULARITY[difficulty]
-  const seeds = (GENRE_SEEDS[genre] || GENRE_SEEDS['all']).slice(0, 2).join(',')
+  const { min } = POPULARITY[difficulty]
+  const seedStr = GENRE_SEEDS[genre] || GENRE_SEEDS['all']
+  // Spotify allows max 5 seeds total
+  const seeds = seedStr.split(',').slice(0, 2).join(',')
   const all = []
 
   for (const decade of decades) {
     const [from, to] = DECADE_RANGES[decade]
     const params = new URLSearchParams({
       seed_genres: seeds,
-      min_popularity: min,
-      limit: 50,
+      min_popularity: String(min),
+      limit: '100',
     })
     const data = await apiFetch(`/recommendations?${params}`)
     if (data.tracks) {
@@ -58,7 +62,7 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
     }
   }
 
-  if (all.length === 0) throw new Error('Ingen sange fundet. Prøv andre indstillinger.')
+  if (all.length === 0) throw new Error('Ingen sange fundet. Prøv at vælge flere årtier eller lavere sværhedsgrad.')
 
   const seen = new Set()
   const unique = all.filter(t => {
