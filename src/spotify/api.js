@@ -12,11 +12,11 @@ async function apiFetch(path, retry = 0) {
   if (res.status === 204) return {}
   if (res.status === 429) {
     const retryAfter = res.headers.get('Retry-After')
-    const wait = retryAfter ? ` Vent ${retryAfter} sekunder.` : ' Vent nogle minutter.'
-    throw new Error(`Spotify rate limit nået.${wait} Prøv igen senere.`)
+    const wait = retryAfter ? ` Wait ${retryAfter} seconds.` : ' Wait a few minutes.'
+    throw new Error(`Spotify rate limit reached.${wait} Try again later.`)
   }
   const text = await res.text()
-  if (!res.ok) throw new Error(`Spotify fejl (${res.status})`)
+  if (!res.ok) throw new Error(`Spotify error (${res.status})`)
   return JSON.parse(text)
 }
 
@@ -58,7 +58,7 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
     all.push(...filtered)
   }
 
-  if (all.length === 0) throw new Error('Ingen sange fundet. Prøv andre indstillinger.')
+  if (all.length === 0) throw new Error('No songs found. Try different settings.')
 
   const seen = new Set()
   const unique = all.filter(t => {
