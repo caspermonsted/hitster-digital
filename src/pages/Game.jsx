@@ -263,15 +263,19 @@ export default function Game({ settings, onQuit }) {
 
         <div style={{ padding: '0 1.5rem' }}>
           <div className="mono" style={{ color: 'var(--accent)', fontSize: '0.62rem', marginBottom: '0.5rem' }}>AND THE NEEDLE LIFTS ON</div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', marginBottom: '0.25rem' }}>
             <span style={{
               fontFamily: "'Playfair Display', serif",
               fontStyle: 'italic', fontWeight: 900,
               fontSize: '3.5rem', color: 'var(--accent)',
               lineHeight: 1,
             }}>{winner ? winner.name : 'Draw'}</span>
-            {winner && <span style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem', paddingBottom: '0.5rem' }}>'s team</span>}
           </div>
+          {winner && (
+            <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1rem', color: 'var(--ink2)', marginBottom: '0.75rem' }}>
+              has won 10 cards!
+            </div>
+          )}
 
           {/* Scores */}
           <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem' }}>
