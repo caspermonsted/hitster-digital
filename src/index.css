@@ -1,18 +1,18 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #f4efe6;
-  --surface: #ede8df;
-  --card: #fdf8f2;
-  --ink: #111;
-  --ink2: #2a261f;
-  --muted: #7a7264;
+  --bg: #efe7d3;
+  --surface: #f7f1e0;
+  --card: #f7f1e0;
+  --ink: #1a1612;
+  --ink2: #2a221c;
+  --muted: #7a6a4a;
+  --label: #7a3a1a;
   --accent: #c4533a;
-  --accent2: #8b1414;
   --green: #3a5d4a;
-  --border: #c8bfae;
-  --border2: #111;
-  --radius: 4px;
+  --border: #d4c8a8;
+  --border2: #1a1612;
+  --radius: 2px;
 }
 
 html, body, #root {
@@ -38,29 +38,28 @@ button {
 button:active { opacity: 0.75; transform: scale(0.98); }
 button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
-/* Primary action button — dark fill */
+/* Primary — dark fill */
 .btn-primary {
   background: var(--ink);
   color: var(--bg);
   font-family: 'Playfair Display', serif;
   font-style: italic;
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-weight: 800;
+  font-size: 1.3rem;
   width: 100%;
-  padding: 1rem 1.25rem;
+  padding: 1.1rem 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  letter-spacing: -0.01em;
 }
 
-/* Reveal / positive action — terracotta */
+/* Reveal / action — terracotta */
 .btn-reveal {
   background: var(--accent);
   color: #fff;
   font-family: 'Playfair Display', serif;
   font-style: italic;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 1.1rem;
   width: 100%;
   padding: 1rem 1.25rem;
@@ -69,34 +68,30 @@ button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
   justify-content: space-between;
 }
 
-/* Ghost / disabled state */
+/* Ghost */
 .btn-ghost {
   background: transparent;
   color: var(--muted);
   border: 1px solid var(--border);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  padding: 0.5rem 0.9rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  padding: 0.4rem 0.75rem;
 }
 
-/* Text input */
 input[type="text"] {
   width: 100%;
-  padding: 0.75rem 0;
+  padding: 0.5rem 0;
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--border);
   color: var(--ink);
   font-family: 'Playfair Display', serif;
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 700;
   outline: none;
 }
 
 input[type="text"]::placeholder { color: var(--border); }
-input[type="text"]:focus { border-bottom-color: var(--ink); }
 
-/* Page wrapper */
 .page {
   min-height: 100%;
   display: flex;
@@ -106,7 +101,6 @@ input[type="text"]:focus { border-bottom-color: var(--ink); }
   margin: 0 auto;
 }
 
-/* Mono label / section header */
 .mono {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.68rem;
@@ -115,30 +109,18 @@ input[type="text"]:focus { border-bottom-color: var(--ink); }
   text-transform: uppercase;
 }
 
-/* Serif italic heading */
 .serif {
   font-family: 'Playfair Display', serif;
   font-style: italic;
   font-weight: 700;
 }
 
-/* Physical card — used for timeline and mystery */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Turntable spin animation */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
 
-/* Playback bar pulse */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
+  50%       { opacity: 0.4; }
 }

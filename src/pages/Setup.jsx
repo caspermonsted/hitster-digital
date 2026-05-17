@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 const DECADES = ['60s', '70s', '80s', '90s', '00s', '10s', '20s']
 const GENRES = [
-  { value: 'all', label: 'Alle' },
+  { value: 'all', label: 'Alle genrer' },
   { value: 'pop', label: 'Pop' },
   { value: 'rock', label: 'Rock' },
   { value: 'hip-hop', label: 'Hip-Hop' },
@@ -10,14 +10,17 @@ const GENRES = [
   { value: 'r&b', label: 'R&B/Soul' },
 ]
 const DIFFICULTIES = [
-  { value: 'easy',   num: '01', label: 'Let',    sub: 'STORE HITS' },
-  { value: 'medium', num: '02', label: 'Medium', sub: 'KENDTE SANGE' },
-  { value: 'hard',   num: '03', label: 'Svær',   sub: 'OBSKURT' },
+  { value: 'easy',   label: 'Let',    meta: 'Store hits',    desc: 'De sange alle kender.' },
+  { value: 'medium', label: 'Medium', meta: 'Kendte sange',  desc: 'Et passende selskab.' },
+  { value: 'hard',   label: 'Svær',   meta: 'Obskurt',       desc: 'Kun for entusiaster.' },
 ]
+const TEAM_COLORS = ['#c4533a', '#3a5d4a', '#d4a13a', '#5a4a8a', '#2a4a7a', '#a8527a']
 
 export default function Setup({ onStart, onLogout }) {
-  const [team1, setTeam1] = useState('Hold 1')
-  const [team2, setTeam2] = useState('Hold 2')
+  const [teams, setTeams] = useState([
+    { name: 'Hold 1', color: TEAM_COLORS[0] },
+    { name: 'Hold 2', color: TEAM_COLORS[1] },
+  ])
   const [decades, setDecades] = useState(['80s', '90s', '00s', '10s'])
   const [difficulty, setDifficulty] = useState('medium')
   const [genre, setGenre] = useState('all')
@@ -30,80 +33,136 @@ export default function Setup({ onStart, onLogout }) {
   }
 
   function handleStart() {
-    if (!team1.trim() || !team2.trim() || decades.length === 0) return
-    onStart({ team1: team1.trim(), team2: team2.trim(), decades, difficulty, genre, rounds })
+    if (!teams[0].name.trim() || !teams[1].name.trim() || decades.length === 0) return
+    onStart({
+      team1: teams[0].name.trim(),
+      team2: teams[1].name.trim(),
+      teamColors: teams.map(t => t.color),
+      decades, difficulty, genre, rounds,
+    })
+  }
+
+  function setTeamName(i, val) {
+    setTeams(prev => prev.map((t, j) => j === i ? { ...t, name: val } : t))
+  }
+  function setTeamColor(i, color) {
+    setTeams(prev => prev.map((t, j) => j === i ? { ...t, color } : t))
   }
 
   return (
     <div style={{ minHeight: '100%', background: 'var(--bg)', maxWidth: 480, margin: '0 auto' }}>
-      {/* Masthead */}
-      <div style={{ padding: '1.25rem 1.5rem 0' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-          <span className="mono" style={{ fontSize: '0.62rem' }}>NO. 047 · MAJ MMXXVI</span>
-          <button className="btn-ghost mono" onClick={onLogout} style={{ fontSize: '0.62rem', padding: '0.3rem 0.6rem' }}>LOG UD</button>
-        </div>
-        <div style={{ borderTop: '1px solid var(--border)', marginBottom: '0.4rem' }} />
-        <div style={{
-          fontFamily: "'Playfair Display', serif",
-          fontWeight: 900, fontStyle: 'italic',
-          fontSize: '1.5rem', textAlign: 'center',
-          letterSpacing: '-0.01em', lineHeight: 1,
-          marginBottom: '0.4rem',
-        }}>THE LISTENING POST</div>
-        <div style={{ borderTop: '3px solid var(--ink)', marginBottom: '0.5rem' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <span className="mono" style={{ fontSize: '0.62rem' }}>EN MUSIKQUIZ I FLERE AKTER</span>
-          <span className="mono" style={{ fontSize: '0.62rem' }}>SIDE 02 / 04</span>
+
+      {/* Top strip */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '0.6rem 1.25rem',
+        borderBottom: '1px solid var(--border)',
+        fontFamily: "'JetBrains Mono', monospace", fontSize: '0.62rem',
+        letterSpacing: '0.18em', color: 'var(--label)',
+      }}>
+        <span>SIDE A · TRACKLISTE</span>
+        <span style={{ fontSize: '0.9rem' }}>◐</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span>33⅓ RPM</span>
+          <button className="btn-ghost" onClick={onLogout} style={{ fontSize: '0.58rem', padding: '0.25rem 0.5rem' }}>LOG UD</button>
         </div>
       </div>
 
-      {/* Headline */}
-      <div style={{ padding: '1.25rem 1.5rem 0' }}>
-        <div className="mono" style={{ color: 'var(--accent2)', marginBottom: '0.4rem', fontSize: '0.62rem' }}>FORSPIL</div>
+      {/* Hero */}
+      <div style={{
+        position: 'relative',
+        padding: '1rem 1.25rem 1.75rem',
+        borderBottom: '1px solid var(--border)',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          fontFamily: "'Playfair Display', serif", fontStyle: 'italic',
+          fontSize: '0.85rem', color: 'var(--label)', marginBottom: '0.25rem',
+        }}>01</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.2em', color: 'var(--label)', marginBottom: '0.3rem' }}>
+          EN NY UDGIVELSE
+        </div>
         <h1 style={{
           fontFamily: "'Playfair Display', serif",
           fontWeight: 900,
-          fontSize: '3.5rem', lineHeight: 0.92,
-          letterSpacing: '-0.03em', margin: '0 0 0.6rem',
-        }}>Nyt spil.</h1>
-        <p style={{
-          fontFamily: "'Playfair Display', serif",
-          fontStyle: 'italic',
-          fontSize: '0.88rem', lineHeight: 1.45,
-          color: 'var(--ink2)', marginBottom: '1.5rem',
+          fontSize: 'clamp(4rem, 20vw, 5.5rem)',
+          lineHeight: 0.88,
+          letterSpacing: '-0.04em',
+          color: 'var(--ink)',
+          margin: '0 0 0.75rem',
         }}>
-          Indstil aftenens parametre — og lad nålen falde.
-        </p>
+          Nyt<br />spil
+        </h1>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.62rem', letterSpacing: '0.16em', color: 'var(--ink)' }}>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.8rem', letterSpacing: 0 }}>komponeret af</span>
+          &nbsp;&nbsp;DIG &amp; DINE GÆSTER
+        </div>
+
+        {/* Vinyl sleeve */}
+        <div style={{ position: 'absolute', right: -20, top: 12, opacity: 0.45, pointerEvents: 'none' }}>
+          <div style={{
+            width: 130, height: 130, borderRadius: '50%',
+            background: 'radial-gradient(circle at 50% 50%, #2a221c 0 35%, #181410 35% 100%)',
+            position: 'relative',
+            boxShadow: '0 6px 24px rgba(0,0,0,0.12)',
+          }}>
+            <div style={{ position: 'absolute', inset: 22, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.05)' }} />
+            <div style={{ position: 'absolute', inset: 38, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.05)' }} />
+            <div style={{ position: 'absolute', inset: '50% 50%', width: 46, height: 46, marginLeft: -23, marginTop: -23, borderRadius: '50%', background: 'var(--accent)' }} />
+            <div style={{ position: 'absolute', inset: '50% 50%', width: 6, height: 6, marginLeft: -3, marginTop: -3, borderRadius: '50%', background: 'var(--bg)' }} />
+          </div>
+        </div>
       </div>
 
-      {/* HOLD */}
-      <SetupSection num="I" label="HOLD" caption="To deltagere">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-          {[
-            { val: team1, set: setTeam1, ph: 'Hold 1', num: '01' },
-            { val: team2, set: setTeam2, ph: 'Hold 2', num: '02' },
-          ].map(({ val, set, ph, num }) => (
-            <div key={num} style={{
-              display: 'flex', alignItems: 'center', gap: '0.75rem',
-              borderBottom: '1px solid var(--border)', padding: '0.5rem 0',
+      {/* A1 — Optrædende */}
+      <SectionBlock number="A1" title="Optrædende" sub={`${teams.length} hold`}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {teams.map((t, i) => (
+            <div key={i} style={{
+              display: 'grid', gridTemplateColumns: 'auto 1fr auto',
+              gap: '0.75rem', alignItems: 'center',
+              background: 'var(--surface)', padding: '0.75rem 0.9rem',
+              border: '1px solid var(--border)',
             }}>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.7rem', color: 'var(--accent2)', width: 24 }}>{num}</span>
-              <input
-                type="text"
-                value={val}
-                onChange={e => set(e.target.value)}
-                placeholder={ph}
-                maxLength={20}
-                style={{ border: 'none', borderBottom: 'none', padding: '0.25rem 0', fontSize: '1.2rem' }}
-              />
+              <div style={{
+                width: 40, height: 40, borderRadius: '50%',
+                background: t.color,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: "'Playfair Display', serif", fontStyle: 'italic',
+                fontWeight: 800, fontSize: '1.2rem', color: '#fff', flexShrink: 0,
+              }}>
+                {t.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <input
+                  type="text"
+                  value={t.name}
+                  onChange={e => setTeamName(i, e.target.value)}
+                  maxLength={20}
+                  style={{ fontSize: '1.1rem', padding: '0' }}
+                />
+                <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.25rem' }}>
+                  {TEAM_COLORS.map(c => (
+                    <button key={c} onClick={() => setTeamColor(i, c)} style={{
+                      width: 12, height: 12, borderRadius: '50%', background: c,
+                      padding: 0, border: 'none', cursor: 'pointer',
+                      outline: t.color === c ? '1.5px solid var(--ink)' : 'none',
+                      outlineOffset: 2,
+                    }} />
+                  ))}
+                </div>
+              </div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.62rem', color: 'var(--muted)' }}>
+                {String(i + 1).padStart(2, '0')}
+              </span>
             </div>
           ))}
         </div>
-      </SetupSection>
+      </SectionBlock>
 
-      {/* ÅRTIER */}
-      <SetupSection num="II" label="ÅRTIER" caption={`${decades.length} valgt`}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem' }}>
+      {/* A2 — Årtier */}
+      <SectionBlock number="A2" title="Årtier" sub={`${decades.length} valgt · 1960–2025`}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
           {DECADES.map(d => {
             const active = decades.includes(d)
             return (
@@ -114,68 +173,58 @@ export default function Setup({ onStart, onLogout }) {
                   border: `1px solid ${active ? 'var(--ink)' : 'var(--border)'}`,
                   background: active ? 'var(--ink)' : 'transparent',
                   color: active ? 'var(--bg)' : 'var(--ink)',
-                  fontFamily: "'Playfair Display', serif",
-                  fontStyle: 'italic',
-                  fontWeight: 700,
-                  fontSize: '1.15rem',
-                  padding: '0.75rem 0',
+                  padding: '0.6rem 0.9rem',
                   cursor: 'pointer',
-                  position: 'relative',
+                  display: 'flex', alignItems: 'baseline', gap: '1px',
                 }}
               >
-                {d}
-                {active && (
-                  <span style={{
-                    position: 'absolute', top: 3, right: 5,
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: '0.5rem', color: 'var(--accent)',
-                    fontStyle: 'normal',
-                  }}>✓</span>
-                )}
+                <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 800, fontSize: '1.25rem' }}>
+                  {d.replace('s', '')}
+                </span>
+                <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.75rem' }}>'s</span>
               </button>
             )
           })}
         </div>
-      </SetupSection>
+      </SectionBlock>
 
-      {/* SVÆRHEDSGRAD */}
-      <SetupSection num="III" label="SVÆRHEDSGRAD" caption="Kun ét niveau">
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {DIFFICULTIES.map((opt, i) => {
+      {/* A3 — Sværhedsgrad */}
+      <SectionBlock number="A3" title="Sværhedsgrad" sub="Kun ét niveau pr. session">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+          {DIFFICULTIES.map(opt => {
             const active = difficulty === opt.value
             return (
               <button
                 key={opt.value}
                 onClick={() => setDifficulty(opt.value)}
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: '28px 1fr auto 18px',
-                  alignItems: 'baseline',
-                  gap: '0.5rem',
-                  padding: '0.85rem 0',
-                  borderTop: i === 0 ? '1px solid var(--border)' : 'none',
-                  borderBottom: '1px solid var(--border)',
-                  background: 'transparent',
-                  textAlign: 'left',
-                  cursor: 'pointer',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '0.9rem 1rem',
+                  background: active ? 'var(--ink)' : 'var(--surface)',
+                  border: `1px solid ${active ? 'var(--ink)' : 'var(--border)'}`,
+                  color: active ? 'var(--bg)' : 'var(--ink)',
+                  cursor: 'pointer', textAlign: 'left',
                 }}
               >
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.62rem', color: 'var(--accent2)', letterSpacing: '0.1em' }}>{opt.num}</span>
-                <span style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontStyle: 'italic', fontWeight: 700,
-                  fontSize: '1.3rem', color: 'var(--ink)',
-                }}>{opt.label}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.12em', color: 'var(--muted)' }}>{opt.sub}</span>
-                <span style={{ fontSize: '0.85rem', color: 'var(--accent2)', textAlign: 'right' }}>{active ? '●' : '○'}</span>
+                <div>
+                  <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 800, fontSize: '1.25rem' }}>
+                    {opt.label}
+                  </div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.1em', marginTop: '0.15rem', opacity: active ? 0.65 : 1 }}>
+                    {opt.meta} · <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', letterSpacing: 0, fontSize: '0.7rem' }}>{opt.desc}</span>
+                  </div>
+                </div>
+                <span style={{ fontSize: '1rem', color: active ? 'var(--accent)' : 'var(--border)', flexShrink: 0 }}>
+                  {active ? '●' : '○'}
+                </span>
               </button>
             )
           })}
         </div>
-      </SetupSection>
+      </SectionBlock>
 
-      {/* GENRE */}
-      <SetupSection num="IV" label="GENRE" caption="Repertoire">
+      {/* A4 — Repertoire */}
+      <SectionBlock number="A4" title="Repertoire" sub="Genrer">
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
           {GENRES.map(g => {
             const active = genre === g.value
@@ -184,23 +233,24 @@ export default function Setup({ onStart, onLogout }) {
                 key={g.value}
                 onClick={() => setGenre(g.value)}
                 style={{
-                  border: `1px solid ${active ? 'var(--accent2)' : 'var(--border)'}`,
-                  background: active ? 'var(--accent2)' : 'transparent',
-                  color: active ? 'var(--bg)' : 'var(--ink)',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: '0.72rem',
-                  letterSpacing: '0.1em',
-                  padding: '0.5rem 0.75rem',
+                  border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                  background: active ? 'var(--accent)' : 'transparent',
+                  color: active ? '#fff' : 'var(--ink)',
+                  borderRadius: 999,
+                  padding: '0.5rem 1rem',
                   cursor: 'pointer',
+                  fontFamily: "'Playfair Display', serif",
+                  fontStyle: 'italic', fontWeight: 600,
+                  fontSize: '0.95rem',
                 }}
               >{g.label}</button>
             )
           })}
         </div>
-      </SetupSection>
+      </SectionBlock>
 
-      {/* RUNDER */}
-      <SetupSection num="V" label="RUNDER" caption="Per spil">
+      {/* A5 — Runder */}
+      <SectionBlock number="A5" title="Runder" sub="Per spil">
         <div style={{ display: 'flex', gap: '0.4rem' }}>
           {[10, 20, 30].map(n => (
             <button
@@ -212,50 +262,71 @@ export default function Setup({ onStart, onLogout }) {
                 background: rounds === n ? 'var(--ink)' : 'transparent',
                 color: rounds === n ? 'var(--bg)' : 'var(--ink)',
                 fontFamily: "'Playfair Display', serif",
-                fontStyle: 'italic',
-                fontWeight: 700,
-                fontSize: '1.3rem',
-                padding: '0.6rem 0',
+                fontStyle: 'italic', fontWeight: 800,
+                fontSize: '1.5rem', padding: '0.6rem 0',
                 cursor: 'pointer',
               }}
             >{n}</button>
           ))}
         </div>
-      </SetupSection>
+      </SectionBlock>
 
       {/* Start */}
-      <div style={{ padding: '1rem 1.5rem 2rem' }}>
-        <div style={{ borderTop: '3px solid var(--ink)', marginBottom: 0 }} />
+      <div style={{ padding: '0.5rem 1.25rem 2rem' }}>
         <button
           onClick={handleStart}
-          disabled={!team1.trim() || !team2.trim() || decades.length === 0}
-          className="btn-primary"
+          disabled={!teams[0].name.trim() || !teams[1].name.trim() || decades.length === 0}
+          style={{
+            width: '100%', border: '1px solid var(--ink)',
+            background: 'var(--ink)', color: 'var(--bg)',
+            padding: '1.1rem 1.25rem', cursor: 'pointer',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            textAlign: 'left',
+          }}
         >
-          <span>Lad spillet begynde</span>
-          <span>→</span>
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.18em', color: '#d4a13a', marginBottom: '0.2rem' }}>
+              TRYK FOR AT SÆTTE NÅLEN
+            </div>
+            <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 800, fontSize: '1.4rem' }}>
+              Begynd spillet
+            </div>
+          </div>
+          <div style={{
+            width: 44, height: 44, borderRadius: '50%',
+            background: 'var(--accent)', color: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1rem', flexShrink: 0,
+          }}>▶</div>
         </button>
-        <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.6rem' }}>
-          <span className="mono" style={{ fontSize: '0.6rem' }}>EDITED BY THE HOUSE</span>
-          <span className="mono" style={{ fontSize: '0.6rem' }}>PRINTED IN COPENHAGEN</span>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', paddingTop: '0.75rem' }}>
+          <span className="mono" style={{ fontSize: '0.58rem' }}>UDGIVET PÅ HUSETS FORLAG</span>
+          <span className="mono" style={{ fontSize: '0.58rem' }}>·</span>
+          <span className="mono" style={{ fontSize: '0.58rem' }}>MMXXVI</span>
         </div>
       </div>
     </div>
   )
 }
 
-function SetupSection({ num, label, caption, children }) {
+function SectionBlock({ number, title, sub, children }) {
   return (
-    <div style={{ padding: '0 1.5rem', marginBottom: '1.25rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-        <span style={{
-          fontFamily: "'Playfair Display', serif",
-          fontStyle: 'italic', fontWeight: 700,
-          fontSize: '0.85rem', color: 'var(--accent2)',
-        }}>§ {num}</span>
-        <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--ink)', fontWeight: 600 }}>{label}</span>
-        <div style={{ flex: 1, borderTop: '1px solid var(--border)', margin: '0 4px' }} />
-        <span className="mono" style={{ fontSize: '0.6rem' }}>{caption}</span>
+    <div style={{ padding: '1rem 1.25rem 0.75rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.3rem' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem' }}>
+          <span style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem',
+            letterSpacing: '0.18em', color: 'var(--label)',
+            border: '1px solid var(--label)', padding: '1px 5px',
+          }}>{number}</span>
+          <h2 style={{
+            fontFamily: "'Playfair Display', serif", fontStyle: 'italic',
+            fontWeight: 800, fontSize: '1.4rem', margin: 0, letterSpacing: '-0.02em',
+          }}>{title}</h2>
+        </div>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.12em', color: 'var(--muted)' }}>{sub}</span>
       </div>
+      <div style={{ borderTop: '1px solid var(--ink)', marginBottom: '0.75rem' }} />
       {children}
     </div>
   )
