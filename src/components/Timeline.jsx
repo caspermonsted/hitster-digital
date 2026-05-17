@@ -26,7 +26,7 @@ export default function Timeline({ cards, selectedGap, onSelectGap, disabled }) 
   )
 }
 
-function GapButton({ index, selected, onClick, disabled, isFirst, isLast, cards }) {
+function GapButton({ index, selected, onClick, isFirst, isLast, cards }) {
   const prevYear = index > 0 ? cards[index - 1].year : null
   const nextYear = index < cards.length ? cards[index].year : null
 
@@ -37,24 +37,27 @@ function GapButton({ index, selected, onClick, disabled, isFirst, isLast, cards 
   else hint = 'Her'
 
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
+    <div
+      data-gap={index}
+      data-active="false"
+      onClick={() => onClick(index)}
       style={{
         width: '100%',
-        padding: '0.5rem',
+        padding: '0.6rem',
         background: selected ? 'var(--accent)' : 'transparent',
         border: selected ? '2px solid var(--accent)' : '2px dashed var(--border)',
         borderRadius: 8,
         color: selected ? '#fff' : 'var(--muted)',
-        fontSize: '0.8rem',
+        fontSize: '0.85rem',
         fontWeight: selected ? 700 : 400,
         margin: '3px 0',
         transition: 'all 0.15s',
+        cursor: 'pointer',
+        textAlign: 'center',
       }}
     >
       {selected ? `✓ Placeret her` : `↓ ${hint}`}
-    </button>
+    </div>
   )
 }
 

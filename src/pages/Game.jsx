@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { fetchTracks } from '../spotify/api'
 import { initPlayer, playSong, pauseSong } from '../spotify/player'
 import Timeline from '../components/Timeline'
+import DraggableCard from '../components/DraggableCard'
 
 const PHASE = {
   LOADING: 'loading',
@@ -75,8 +76,8 @@ export default function Game({ settings, onQuit }) {
     }
   }
 
-  async function handleStop() {
-    try { await pauseSong() } catch {}
+  function handleDrop(gapIdx) {
+    setSelectedGap(gapIdx)
     setPhase(PHASE.PLACING)
   }
 
@@ -207,53 +208,45 @@ export default function Game({ settings, onQuit }) {
       </div>
 
       {/* Current song card */}
-      {currentTrack && (
-        <div style={{
-          margin: '1rem 1rem 0',
-          background: 'var(--surface)',
-          border: `2px solid ${phase === PHASE.REVEALING && isCorrect ? 'var(--green)' : phase === PHASE.REVEALING ? 'var(--accent)' : 'var(--border)'}`,
-          borderRadius: 12,
-          padding: '1rem',
-          display: 'flex',
-          gap: '1rem',
-          alignItems: 'center',
-        }}>
-          {phase === PHASE.REVEALING && currentTrack.albumArt && (
-            <img src={currentTrack.albumArt} alt="" style={{ width: 64, height: 64, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
-          )}
-          {phase !== PHASE.REVEALING && (
-            <div style={{ width: 64, height: 64, borderRadius: 8, background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', flexShrink: 0 }}>
-              🎵
+      {currentTrack && (() => {
+        const revealed = phase === PHASE.REVEALING
+        const cardEl = (
+          <div style={{
+            margin: '1rem 1rem 0',
+            background: 'var(--surface)',
+            border: `2px solid ${revealed && isCorrect ? 'var(--green)' : revealed ? 'var(--accent)' : 'var(--border)'}`,
+            borderRadius: 12,
+            padding: '1rem',
+            display: 'flex',
+            gap: '1rem',
+            alignItems: 'center',
+          }}>
+            {revealed && currentTrack.albumArt
+              ? <img src={currentTrack.albumArt} alt="" style={{ width: 64, height: 64, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+              : <div style={{ width: 64, height: 64, borderRadius: 8, background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem', flexShrink: 0 }}>🎵</div>
+            }
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {revealed ? (
+                <>
+                  <div style={{ fontWeight: 900, fontSize: '1.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack.title}</div>
+                  <div style={{ color: 'var(--muted)', fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentTrack.artist}</div>
+                  <div style={{ marginTop: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--accent2)' }}>{currentTrack.year}</span>
+                    <span style={{ fontWeight: 700, color: isCorrect ? 'var(--green)' : 'var(--accent)' }}>{isCorrect ? '✓ Korrekt! +1' : '✗ Forkert'}</span>
+                  </div>
+                </>
+              ) : (
+                <div style={{ color: 'var(--muted)', fontSize: '0.95rem' }}>
+                  {phase === PHASE.READY ? 'Tryk Spil sang og træk kortet til tidslinjen' : phase === PHASE.PLACING ? '✓ Placeret — bekræft eller træk igen' : 'Træk kortet ned på tidslinjen'}
+                </div>
+              )}
             </div>
-          )}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {phase === PHASE.REVEALING ? (
-              <>
-                <div style={{ fontWeight: 900, fontSize: '1.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {currentTrack.title}
-                </div>
-                <div style={{ color: 'var(--muted)', fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {currentTrack.artist}
-                </div>
-              </>
-            ) : (
-              <div style={{ color: 'var(--muted)', fontSize: '0.95rem' }}>
-                Hør sangen og placer den på tidslinjen
-              </div>
-            )}
-            {phase === PHASE.REVEALING && (
-              <div style={{ marginTop: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--accent2)' }}>
-                  {currentTrack.year}
-                </span>
-                <span style={{ fontWeight: 700, color: isCorrect ? 'var(--green)' : 'var(--accent)' }}>
-                  {isCorrect ? '✓ Korrekt! +1' : '✗ Forkert'}
-                </span>
-              </div>
-            )}
           </div>
-        </div>
-      )}
+        )
+        return phase === PHASE.PLAYING
+          ? <DraggableCard onDrop={handleDrop}>{cardEl}</DraggableCard>
+          : cardEl
+      })()}
 
       {/* Action buttons */}
       <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -263,17 +256,13 @@ export default function Game({ settings, onQuit }) {
           </button>
         )}
         {phase === PHASE.PLAYING && (
-          <button className="btn-primary" onClick={handleStop}>
-            ⏸ Stop – Vælg placering
-          </button>
+          <p style={{ color: 'var(--muted)', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>
+            Træk kortet ned på tidslinjen
+          </p>
         )}
         {phase === PHASE.PLACING && (
-          <button
-            className="btn-primary"
-            onClick={handleConfirm}
-            disabled={selectedGap === null}
-          >
-            {selectedGap === null ? 'Vælg en placering nedenfor' : 'Bekræft placering'}
+          <button className="btn-primary" onClick={handleConfirm}>
+            Bekræft placering
           </button>
         )}
         {phase === PHASE.REVEALING && (
