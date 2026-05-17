@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 const DECADES = ['60s', '70s', '80s', '90s', '00s', '10s', '20s']
 const GENRES = [
-  { value: 'all', label: 'Alle genrer' },
+  { value: 'all', label: 'All genres' },
   { value: 'pop', label: 'Pop' },
   { value: 'rock', label: 'Rock' },
   { value: 'hip-hop', label: 'Hip-Hop' },
@@ -10,9 +10,9 @@ const GENRES = [
   { value: 'r&b', label: 'R&B/Soul' },
 ]
 const DIFFICULTIES = [
-  { value: 'easy',   label: 'Let',    meta: 'Store hits',    desc: 'De sange alle kender.' },
-  { value: 'medium', label: 'Medium', meta: 'Kendte sange',  desc: 'Et passende selskab.' },
-  { value: 'hard',   label: 'Svær',   meta: 'Obskurt',       desc: 'Kun for entusiaster.' },
+  { value: 'easy',   label: 'Easy',   meta: 'Big hits',      desc: 'Songs everyone knows.' },
+  { value: 'medium', label: 'Medium', meta: 'Well-known',    desc: 'A fitting crowd.' },
+  { value: 'hard',   label: 'Hard',   meta: 'Obscure',       desc: 'For enthusiasts only.' },
 ]
 const TEAM_COLORS = ['#c4533a', '#3a5d4a', '#d4a13a', '#5a4a8a', '#2a4a7a', '#a8527a']
 
@@ -60,7 +60,7 @@ export default function Setup({ onStart, onLogout }) {
         fontFamily: "'JetBrains Mono', monospace", fontSize: '0.62rem',
         letterSpacing: '0.18em', color: 'var(--label)',
       }}>
-        <span>SIDE A · TRACKLISTE</span>
+        <span>SIDE A · TRACKLIST</span>
         <span style={{ fontSize: '0.9rem' }}>◐</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <span>33⅓ RPM</span>
@@ -80,7 +80,7 @@ export default function Setup({ onStart, onLogout }) {
           fontSize: '0.85rem', color: 'var(--label)', marginBottom: '0.25rem',
         }}>01</div>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.2em', color: 'var(--label)', marginBottom: '0.3rem' }}>
-          EN NY UDGIVELSE
+          A NEW RELEASE
         </div>
         <h1 style={{
           fontFamily: "'Playfair Display', serif",
@@ -91,11 +91,11 @@ export default function Setup({ onStart, onLogout }) {
           color: 'var(--ink)',
           margin: '0 0 0.75rem',
         }}>
-          Nyt<br />spil
+          New<br />game
         </h1>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.62rem', letterSpacing: '0.16em', color: 'var(--ink)' }}>
-          <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.8rem', letterSpacing: 0 }}>komponeret af</span>
-          &nbsp;&nbsp;DIG &amp; DINE GÆSTER
+          <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.8rem', letterSpacing: 0 }}>composed by</span>
+          &nbsp;&nbsp;YOU &amp; YOUR GUESTS
         </div>
 
         {/* Vinyl sleeve */}
@@ -115,7 +115,7 @@ export default function Setup({ onStart, onLogout }) {
       </div>
 
       {/* A1 — Optrædende */}
-      <SectionBlock number="A1" title="Optrædende" sub={`${teams.length} hold`}>
+      <SectionBlock number="A1" title="Players" sub={`${teams.length} teams`}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {teams.map((t, i) => (
             <div key={i} style={{
@@ -161,7 +161,7 @@ export default function Setup({ onStart, onLogout }) {
       </SectionBlock>
 
       {/* A2 — Årtier */}
-      <SectionBlock number="A2" title="Årtier" sub={`${decades.length} valgt · 1960–2025`}>
+      <SectionBlock number="A2" title="Decades" sub={`${decades.length} selected · 1960–2025`}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
           {DECADES.map(d => {
             const active = decades.includes(d)
@@ -189,7 +189,7 @@ export default function Setup({ onStart, onLogout }) {
       </SectionBlock>
 
       {/* A3 — Sværhedsgrad */}
-      <SectionBlock number="A3" title="Sværhedsgrad" sub="Kun ét niveau pr. session">
+      <SectionBlock number="A3" title="Difficulty" sub="One level per session">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
           {DIFFICULTIES.map(opt => {
             const active = difficulty === opt.value
@@ -224,7 +224,7 @@ export default function Setup({ onStart, onLogout }) {
       </SectionBlock>
 
       {/* A4 — Repertoire */}
-      <SectionBlock number="A4" title="Repertoire" sub="Genrer">
+      <SectionBlock number="A4" title="Repertoire" sub="Genres">
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
           {GENRES.map(g => {
             const active = genre === g.value
@@ -250,7 +250,7 @@ export default function Setup({ onStart, onLogout }) {
       </SectionBlock>
 
       {/* A5 — Runder */}
-      <SectionBlock number="A5" title="Runder" sub="Per spil">
+      <SectionBlock number="A5" title="Rounds" sub="Per game">
         <div style={{ display: 'flex', gap: '0.4rem' }}>
           {[10, 20, 30].map(n => (
             <button
@@ -286,10 +286,10 @@ export default function Setup({ onStart, onLogout }) {
         >
           <div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.18em', color: '#d4a13a', marginBottom: '0.2rem' }}>
-              TRYK FOR AT SÆTTE NÅLEN
+              DROP THE NEEDLE
             </div>
             <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 800, fontSize: '1.4rem' }}>
-              Begynd spillet
+              Begin the game
             </div>
           </div>
           <div style={{
@@ -300,7 +300,7 @@ export default function Setup({ onStart, onLogout }) {
           }}>▶</div>
         </button>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', paddingTop: '0.75rem' }}>
-          <span className="mono" style={{ fontSize: '0.58rem' }}>UDGIVET PÅ HUSETS FORLAG</span>
+          <span className="mono" style={{ fontSize: '0.58rem' }}>PUBLISHED BY THE HOUSE</span>
           <span className="mono" style={{ fontSize: '0.58rem' }}>·</span>
           <span className="mono" style={{ fontSize: '0.58rem' }}>MMXXVI</span>
         </div>

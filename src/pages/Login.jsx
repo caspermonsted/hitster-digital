@@ -58,6 +58,7 @@ export default function Login() {
             }}>A.</h1>
           </div>
 
+
           {/* Vinyl */}
           <div style={{ flexShrink: 0, marginTop: '0.5rem', opacity: 0.55 }}>
             <div style={{
@@ -100,9 +101,9 @@ export default function Login() {
             <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 700, fontSize: '1rem' }}>How it goes</span>
           </div>
           {[
-            'En sang spiller. Du ser ikke hvad det er.',
-            'Træk kortet til det rigtige sted på tidslinjen.',
-            'Gæt titel eller kunstner — og vind kortet.',
+            'A song plays. You don\'t see what it is.',
+            'Drag the card to the right spot on the timeline.',
+            'Guess the title or artist — and win the card.',
           ].map((text, i) => (
             <div key={i} style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.4rem', alignItems: 'flex-start' }}>
               <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 700, fontSize: '1rem', color: 'var(--accent)', lineHeight: 1.3, minWidth: '0.9rem' }}>{i + 1}</span>
@@ -128,10 +129,10 @@ export default function Login() {
         >
           <div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.18em', color: '#d4a13a', marginBottom: '0.2rem' }}>
-              LOG IND MED SPOTIFY
+              SIGN IN WITH SPOTIFY
             </div>
             <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 800, fontSize: '1.3rem' }}>
-              Sæt nålen
+              Drop the needle
             </div>
           </div>
           <div style={{
@@ -144,7 +145,7 @@ export default function Login() {
           </div>
         </button>
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 1.25rem' }}>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.14em', color: 'var(--muted)' }}>KRÆVER SPOTIFY PREMIUM</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.14em', color: 'var(--muted)' }}>REQUIRES SPOTIFY PREMIUM</span>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.58rem', letterSpacing: '0.14em', color: 'var(--muted)' }}>SIDE 01 / 04</span>
         </div>
       </div>

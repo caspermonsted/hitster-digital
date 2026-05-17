@@ -169,10 +169,10 @@ export default function Game({ settings, onQuit }) {
   if (error) {
     return (
       <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '1rem', padding: '2rem', textAlign: 'center', background: 'var(--bg)' }}>
-        <span className="mono" style={{ color: 'var(--accent)', fontSize: '0.72rem' }}>FEJL</span>
+        <span className="mono" style={{ color: 'var(--accent)', fontSize: '0.72rem' }}>ERROR</span>
         <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1rem', color: 'var(--ink2)', lineHeight: 1.5, maxWidth: 320 }}>{error}</p>
         <button onClick={onQuit} style={{ border: '1px solid var(--ink)', background: 'transparent', padding: '0.75rem 2rem', fontFamily: "'JetBrains Mono', monospace", fontSize: '0.72rem', letterSpacing: '0.1em', cursor: 'pointer' }}>
-          ← TILBAGE
+          ← BACK
         </button>
       </div>
     )
@@ -183,7 +183,7 @@ export default function Game({ settings, onQuit }) {
     return (
       <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '1rem', background: 'var(--bg)' }}>
         <Vinyl size={80} spinning color="var(--muted)" />
-        <span className="mono" style={{ fontSize: '0.68rem', animation: 'pulse 1.5s ease-in-out infinite' }}>FORBINDER TIL SPOTIFY…</span>
+        <span className="mono" style={{ fontSize: '0.68rem', animation: 'pulse 1.5s ease-in-out infinite' }}>CONNECTING TO SPOTIFY…</span>
       </div>
     )
   }
@@ -212,7 +212,7 @@ export default function Game({ settings, onQuit }) {
               fontStyle: 'italic', fontWeight: 900,
               fontSize: '3.5rem', color: 'var(--accent)',
               lineHeight: 1,
-            }}>{winner ? winner.name : 'Uafgjort'}</span>
+            }}>{winner ? winner.name : 'Draw'}</span>
             {winner && <span style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem', paddingBottom: '0.5rem' }}>'s team</span>}
           </div>
 
@@ -238,9 +238,9 @@ export default function Game({ settings, onQuit }) {
                   <div style={{ border: '1px solid var(--accent2)', padding: '1px 4px' }}>
                     <span className="mono" style={{ fontSize: '0.55rem', color: 'var(--accent2)' }}>A1</span>
                   </div>
-                  <span className="serif" style={{ fontSize: '0.95rem' }}>Vindende tidslinje · {winner.name.toUpperCase()}</span>
+                  <span className="serif" style={{ fontSize: '0.95rem' }}>Winning timeline · {winner.name.toUpperCase()}</span>
                 </div>
-                <span className="mono" style={{ fontSize: '0.6rem' }}>{winner.timeline.filter(c => !c.isAnchor).length} KORT</span>
+                <span className="mono" style={{ fontSize: '0.6rem' }}>{winner.timeline.filter(c => !c.isAnchor).length} CARDS</span>
               </div>
               <div style={{ overflowX: 'auto', paddingBottom: '0.75rem' }}>
                 <div style={{ display: 'flex', gap: '0.5rem', width: 'max-content' }}>
@@ -257,7 +257,7 @@ export default function Game({ settings, onQuit }) {
           <div style={{ borderTop: '3px solid var(--ink)' }} />
           <button onClick={onQuit} className="btn-primary">
             <span>Side A</span>
-            <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>Nyt spil</span>
+            <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>New game</span>
           </button>
         </div>
       </div>
@@ -285,9 +285,9 @@ export default function Game({ settings, onQuit }) {
           <span className="mono" style={{ fontSize: '0.62rem' }}>⏸</span>
         </button>
         <div style={{ textAlign: 'center' }}>
-          <div className="mono" style={{ fontSize: '0.6rem' }}>RUNDE {trackIdx + 1} · TUR</div>
+          <div className="mono" style={{ fontSize: '0.6rem' }}>ROUND {trackIdx + 1} · TURN</div>
           <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 700, fontSize: '1rem', color: team.color }}>
-            {team.name}s hold
+            {team.name}'s turn
           </div>
         </div>
         <button onClick={onQuit} style={{ background: 'none', border: '1px solid var(--border)', padding: '0.35rem 0.6rem', cursor: 'pointer' }}>
@@ -373,11 +373,11 @@ export default function Game({ settings, onQuit }) {
           {phase === PHASE.LISTENING ? '↓' : '·'}
         </span>
         <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.85rem', color: 'var(--ink2)', lineHeight: 1.4 }}>
-          {phase === PHASE.READY && 'Tryk Spil — og træk kortet til tidslinjen.'}
-          {phase === PHASE.LISTENING && 'Lyt — og træk kortet ned i tidslinjen.'}
-          {phase === PHASE.PLACED && 'Placeret. Diskutér titel og kunstner — afslør så svaret.'}
-          {phase === PHASE.REVEALED && isCorrect && <><em>Korrekt placeret.</em> Kortet er jeres.</>}
-          {phase === PHASE.REVEALED && !isCorrect && <><em>Forkert placering.</em> Kortet går tilbage i bunken.</>}
+          {phase === PHASE.READY && 'Press Play — then drag the card onto the timeline.'}
+          {phase === PHASE.LISTENING && 'Listen — then drag the card onto the timeline.'}
+          {phase === PHASE.PLACED && 'Placed. Discuss the title and artist — then reveal the answer.'}
+          {phase === PHASE.REVEALED && isCorrect && <><em>Correctly placed.</em> The card is yours.</>}
+          {phase === PHASE.REVEALED && !isCorrect && <><em>Wrong placement.</em> Card goes back in the deck.</>}
         </span>
       </div>
 
@@ -387,9 +387,9 @@ export default function Game({ settings, onQuit }) {
           <div style={{ border: '1px solid var(--accent2)', padding: '1px 4px' }}>
             <span className="mono" style={{ fontSize: '0.55rem', color: 'var(--accent2)' }}>A1</span>
           </div>
-          <span className="serif" style={{ fontSize: '0.85rem' }}>Tidslinje</span>
+          <span className="serif" style={{ fontSize: '0.85rem' }}>Timeline</span>
           <span className="mono" style={{ fontSize: '0.6rem', marginLeft: 'auto', color: 'var(--muted)' }}>
-            {team.timeline.filter(c => !c.isAnchor).length} KORT · {team.name.toUpperCase()}
+            {team.timeline.filter(c => !c.isAnchor).length} CARDS · {team.name.toUpperCase()}
           </span>
         </div>
         <div style={{ height: 1, background: 'var(--border)', margin: '0 1.25rem' }} />
@@ -436,8 +436,8 @@ export default function Game({ settings, onQuit }) {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 1.25rem 0.5rem' }}>
-          <span className="mono" style={{ fontSize: '0.55rem', color: 'var(--muted)' }}>← TIDLIGERE</span>
-          <span className="mono" style={{ fontSize: '0.55rem', color: 'var(--muted)' }}>NYERE →</span>
+          <span className="mono" style={{ fontSize: '0.55rem', color: 'var(--muted)' }}>← EARLIER</span>
+          <span className="mono" style={{ fontSize: '0.55rem', color: 'var(--muted)' }}>LATER →</span>
         </div>
       </div>
 
@@ -446,21 +446,21 @@ export default function Game({ settings, onQuit }) {
         <div style={{ borderTop: '3px solid var(--ink)' }} />
         {phase === PHASE.READY && (
           <button onClick={handlePlay} className="btn-reveal">
-            <div><div className="mono" style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.6)', marginBottom: 2 }}>KLAR?</div>
-            <span>Spil sangen</span></div>
+            <div><div className="mono" style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.6)', marginBottom: 2 }}>READY?</div>
+            <span>Play the song</span></div>
             <span>→</span>
           </button>
         )}
         {phase === PHASE.LISTENING && (
           <div style={{ padding: '0.85rem 1.25rem', background: 'var(--surface)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="mono" style={{ fontSize: '0.62rem', color: 'var(--muted)' }}>VENTER</span>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.9rem', color: 'var(--ink2)' }}>Træk kortet til en plads</span>
+            <span className="mono" style={{ fontSize: '0.62rem', color: 'var(--muted)' }}>WAITING</span>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.9rem', color: 'var(--ink2)' }}>Drag the card to a slot</span>
           </div>
         )}
         {phase === PHASE.PLACED && (
           <button onClick={handleReveal} className="btn-reveal">
-            <div><div className="mono" style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.6)', marginBottom: 2 }}>KLAR?</div>
-            <span>Afslør sangen</span></div>
+            <div><div className="mono" style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.6)', marginBottom: 2 }}>READY?</div>
+            <span>Reveal the song</span></div>
             <span>→</span>
           </button>
         )}
@@ -468,9 +468,9 @@ export default function Game({ settings, onQuit }) {
           <button onClick={handleNext} className="btn-primary">
             <div>
               <div className="mono" style={{ fontSize: '0.6rem', color: 'rgba(196,200,180,0.7)', marginBottom: 2 }}>
-                {isCorrect ? '+1 KORT' : 'INGEN GEVINST'}
+                {isCorrect ? '+1 CARD' : 'NO WIN'}
               </div>
-              <span>Næste hold → {teams[1 - teamIdx].name}</span>
+              <span>Next team → {teams[1 - teamIdx].name}</span>
             </div>
             <span>→</span>
           </button>
@@ -584,8 +584,8 @@ function MysteryCardEl({ onPointerDown, draggable, floating, style }) {
         lineHeight: 1,
       }}>?</span>
       <div style={{ textAlign: 'center' }}>
-        <div className="mono" style={{ fontSize: '0.48rem', color: 'var(--muted)' }}>AFSPILLER…</div>
-        {draggable && <div className="mono" style={{ fontSize: '0.48rem', color: 'var(--accent)', marginTop: 2 }}>↕ TRÆK</div>}
+        <div className="mono" style={{ fontSize: '0.48rem', color: 'var(--muted)' }}>PLAYING…</div>
+        {draggable && <div className="mono" style={{ fontSize: '0.48rem', color: 'var(--accent)', marginTop: 2 }}>↕ DRAG</div>}
       </div>
     </div>
   )
@@ -604,7 +604,7 @@ function TLCard({ card, teamColor }) {
         alignItems: 'center', justifyContent: 'center',
         gap: 4, margin: '0 2px',
       }}>
-        <span className="mono" style={{ fontSize: '0.5rem', color: teamColor }}>STARTÅR</span>
+        <span className="mono" style={{ fontSize: '0.5rem', color: teamColor }}>START YEAR</span>
         <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 900, fontSize: '1.4rem', color: teamColor, lineHeight: 1 }}>{card.year}</span>
       </div>
     )
@@ -661,7 +661,7 @@ function RevealedTLCard({ song, correct, teamColor }) {
         <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '0.6rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song?.artist}</div>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.5rem', color: 'var(--muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{song?.title}</div>
         <div className="mono" style={{ fontSize: '0.5rem', marginTop: 2, color: correct ? 'var(--green)' : 'var(--accent)' }}>
-          {correct ? 'KEEPER' : 'FORKERT'}
+          {correct ? 'KEEPER' : 'WRONG'}
         </div>
       </div>
     </div>
