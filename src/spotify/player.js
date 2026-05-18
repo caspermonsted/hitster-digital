@@ -16,14 +16,20 @@ export async function initPlayer() {
     const data = await res.json()
     const device = data.devices?.find(d => d.is_active) ?? data.devices?.[0]
     if (!device) {
-      throw new Error('Open Spotify on your phone, play any song briefly, then come back and start the game.')
+      throw new Error('Open the Spotify app on your phone, then start the game.')
     }
     deviceId = device.id
-    // Transfer playback to this device so its audio session is active
+    // Activate Spotify's audio session: transfer with play:true, then pause immediately.
+    // iOS requires an active session before background play commands work.
     await fetch('https://api.spotify.com/v1/me/player', {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ device_ids: [deviceId], play: false }),
+      body: JSON.stringify({ device_ids: [deviceId], play: true }),
+    })
+    await new Promise(r => setTimeout(r, 400))
+    await fetch('https://api.spotify.com/v1/me/player/pause', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
     })
     return
   }
