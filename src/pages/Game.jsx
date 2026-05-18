@@ -198,6 +198,7 @@ export default function Game({ settings, onQuit }) {
     setYearCorrect(yc)
     setPhase(PHASE.REVEALED)
     setPlaying(false)
+    if (!settings.demo) pauseSong()
   }
 
   function handleJudge(guessedTitle) {
@@ -228,6 +229,7 @@ export default function Game({ settings, onQuit }) {
   }
 
   function handleBeginTurn() {
+    if (!settings.demo) pauseSong()
     setTrackIdx(t => t + 1)
     setTeamIdx(t => 1 - t)
     setPlacedSlot(null)
@@ -616,9 +618,11 @@ export default function Game({ settings, onQuit }) {
                     }}
                   >
                     {isPlaced ? (
-                      (phase === PHASE.REVEALED || phase === PHASE.JUDGED)
-                        ? <RevealedTLCard song={currentTrack} yearCorrect={yearCorrect} correct={isCorrect} teamColor={team.color} />
-                        : <MiniMysteryCard />
+                      phase === PHASE.REVEALED
+                        ? <RevealedTLCard song={currentTrack} yearCorrect={yearCorrect} correct={null} teamColor={team.color} />
+                        : phase === PHASE.JUDGED && !isCorrect
+                          ? <RevealedTLCard song={currentTrack} yearCorrect={yearCorrect} correct={false} teamColor={team.color} />
+                          : <MiniMysteryCard />
                     ) : (
                       <span style={{ color: isHover ? 'var(--accent)' : 'var(--border)', fontFamily: "'JetBrains Mono', monospace", fontSize: '0.9rem' }}>+</span>
                     )}
