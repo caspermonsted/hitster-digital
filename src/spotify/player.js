@@ -7,21 +7,19 @@ const deviceReady = new Promise(r => { deviceReadyResolve = r })
 
 export const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-// Audio element for preview playback on mobile
-let audioEl = null
-function getAudio() {
-  if (!audioEl) {
-    audioEl = new Audio()
-    audioEl.volume = 0.9
-  }
-  return audioEl
-}
-
-export function initPlayer() {
+export async function initPlayer() {
   if (isMobile) {
-    // Web Playback SDK doesn't work on iOS/Android.
-    // We use preview URLs played directly in the browser instead.
-    return getToken().then(() => {})
+    const token = await getToken()
+    const res = await fetch('https://api.spotify.com/v1/me/player/devices', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    const data = await res.json()
+    const device = data.devices?.find(d => d.is_active) ?? data.devices?.[0]
+    if (!device) {
+      throw new Error('Open the Spotify app on your phone first, then start the game.')
+    }
+    deviceId = device.id
+    return
   }
 
   return new Promise((resolve, reject) => {
@@ -54,16 +52,8 @@ export function initPlayer() {
   })
 }
 
-export async function playSong(uri, previewUrl, resume = false) {
-  if (isMobile) {
-    if (!previewUrl) throw new Error('NO_PREVIEW')
-    const audio = getAudio()
-    if (!resume) audio.src = previewUrl
-    await audio.play()
-    return
-  }
-
-  const id = await deviceReady
+export async function playSong(uri, _previewUrl, resume = false) {
+  const id = isMobile ? deviceId : await deviceReady
   const token = await getToken()
   await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${id}`, {
     method: 'PUT',
@@ -74,18 +64,12 @@ export async function playSong(uri, previewUrl, resume = false) {
 
 export async function pauseSong() {
   try {
-    if (isMobile) {
-      audioEl?.pause()
-      return
-    }
     const token = await getToken()
     await fetch('https://api.spotify.com/v1/me/player/pause', {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}` },
     })
-  } catch (_) {
-    // Non-critical
-  }
+  } catch (_) {}
 }
 
 export function getPlayer() { return player }
