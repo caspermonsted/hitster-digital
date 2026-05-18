@@ -72,6 +72,7 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
   return unique.slice(0, count).map(t => ({
     id: t.id,
     uri: t.uri,
+    previewUrl: t.preview_url || null,
     title: t.name,
     artist: t.artists.map(a => a.name).join(', '),
     year: parseInt(t.album.release_date.slice(0, 4)),

@@ -139,7 +139,7 @@ export default function Game({ settings, onQuit }) {
 
   async function handlePlay() {
     try {
-      if (!settings.demo) await playSong(currentTrack.uri)
+      if (!settings.demo) await playSong(currentTrack.uri, currentTrack.previewUrl)
       setPhase(PHASE.LISTENING)
       setPlaying(true)
       setProgress(0)
