@@ -17,7 +17,7 @@ async function apiFetch(path, retry = 0) {
   }
   const text = await res.text()
   if (!res.ok) {
-    let msg = `Spotify error (${res.status})`
+    let msg = `Spotify error (${res.status}) [${path}]`
     try { const j = JSON.parse(text); if (j.error?.message) msg += ': ' + j.error.message } catch (_) {}
     throw new Error(msg)
   }
@@ -49,13 +49,13 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60, mobi
   const maxYear = Math.max(...years)
 
   let q = `year:${minYear}-${maxYear}`
-  if (genre && genre !== 'all') q += `+genre:${encodeURIComponent(genre)}`
+  if (genre && genre !== 'all') q += ` genre:${genre}`
 
   // Fetch pages until we have enough tracks — usually one page of 50 is sufficient.
   // We only fetch more if filtering (especially mobileOnly) leaves us short.
   const needed = Math.max(count, 20)
   for (let offset = 0; offset < 200 && all.length < needed; offset += 20) {
-    const url = `/search?q=${q}&type=track&limit=20&offset=${offset}`
+    const url = `/search?q=${encodeURIComponent(q)}&type=track&offset=${offset}`
     const data = await apiFetch(url)
     if (!data.tracks?.items?.length) break
     const filtered = data.tracks.items.filter(t => {
