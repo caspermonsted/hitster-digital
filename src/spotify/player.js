@@ -54,23 +54,21 @@ export function initPlayer() {
   })
 }
 
-export async function playSong(uri, previewUrl) {
+export async function playSong(uri, previewUrl, resume = false) {
   if (isMobile) {
-    // Always use preview URL on mobile — tracks without one are filtered out at fetch time
-    if (!previewUrl) throw new Error('No preview available — this track slipped through the filter. Please restart the game.')
+    if (!previewUrl) throw new Error('NO_PREVIEW')
     const audio = getAudio()
-    audio.src = previewUrl
+    if (!resume) audio.src = previewUrl
     await audio.play()
     return
   }
 
-  // Desktop — full song via Web Playback SDK
   const id = await deviceReady
   const token = await getToken()
   await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${id}`, {
     method: 'PUT',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ uris: [uri] }),
+    body: resume ? undefined : JSON.stringify({ uris: [uri] }),
   })
 }
 

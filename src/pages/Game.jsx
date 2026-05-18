@@ -115,7 +115,7 @@ export default function Game({ settings, onQuit }) {
           t = shuffled(DEMO_TRACKS)
         } else {
           await initPlayer()
-          t = await fetchTracks({ ...settings, mobileOnly: isMobile })
+          t = await fetchTracks({ ...settings, mobileOnly: false })
           if (t.length === 0) throw new Error('No songs found. Try selecting more decades.')
         }
         setTracks(t)
@@ -139,7 +139,13 @@ export default function Game({ settings, onQuit }) {
 
   async function handlePlay() {
     try {
-      if (!settings.demo) await playSong(currentTrack.uri, currentTrack.previewUrl)
+      if (!settings.demo) {
+        if (isMobile && !currentTrack.previewUrl) {
+          setTrackIdx(t => t + 1)
+          return
+        }
+        await playSong(currentTrack.uri, currentTrack.previewUrl)
+      }
       setPhase(PHASE.LISTENING)
       setPlaying(true)
       setProgress(0)
@@ -543,7 +549,15 @@ export default function Game({ settings, onQuit }) {
       {phase !== PHASE.READY && phase !== PHASE.REVEALED && phase !== PHASE.JUDGED && (
         <div style={{ padding: '0 1.25rem 0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button
-            onClick={() => setPlaying(p => !p)}
+            onClick={async () => {
+              if (playing) {
+                if (!settings.demo) pauseSong()
+                setPlaying(false)
+              } else {
+                if (!settings.demo) await playSong(currentTrack.uri, currentTrack.previewUrl, true)
+                setPlaying(true)
+              }
+            }}
             style={{
               width: 32, height: 32, borderRadius: '50%',
               background: 'var(--ink)', color: 'var(--bg)',
