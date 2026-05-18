@@ -47,23 +47,21 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60, mobi
   let q = `year:${minYear}-${maxYear}`
   if (genre && genre !== 'all') q += `+genre:${genre}`
 
-  // Fetch multiple pages to get a large enough pool, especially important on
-  // mobile where we filter out tracks without a preview URL
-  const offsets = [0, 50, 100]
-  for (const offset of offsets) {
+  // Fetch pages until we have enough tracks — usually one page of 50 is sufficient.
+  // We only fetch more if filtering (especially mobileOnly) leaves us short.
+  const needed = Math.max(count, 20)
+  for (let offset = 0; offset < 150 && all.length < needed; offset += 50) {
     const url = `/search?q=${encodeURIComponent(q)}&type=track&limit=50&offset=${offset}`
     const data = await apiFetch(url)
-    if (data.tracks?.items) {
-      const filtered = data.tracks.items.filter(t => {
-        if (!t.album?.release_date) return false
-        const year = parseInt(t.album.release_date.slice(0, 4))
-        if (!decades.some(d => year >= DECADE_RANGES[d][0] && year <= DECADE_RANGES[d][1])) return false
-        if (mobileOnly && !t.preview_url) return false
-        return true
-      })
-      all.push(...filtered)
-    }
-    if (all.length >= count) break
+    if (!data.tracks?.items?.length) break
+    const filtered = data.tracks.items.filter(t => {
+      if (!t.album?.release_date) return false
+      const year = parseInt(t.album.release_date.slice(0, 4))
+      if (!decades.some(d => year >= DECADE_RANGES[d][0] && year <= DECADE_RANGES[d][1])) return false
+      if (mobileOnly && !t.preview_url) return false
+      return true
+    })
+    all.push(...filtered)
   }
 
   if (all.length === 0) throw new Error('No songs found. Try selecting more decades or a different genre.')
