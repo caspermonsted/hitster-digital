@@ -7,9 +7,8 @@ const deviceReady = new Promise(r => { deviceReadyResolve = r })
 
 export const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-// Audio element used for preview playback on mobile
+// Audio element for preview playback on mobile
 let audioEl = null
-
 function getAudio() {
   if (!audioEl) {
     audioEl = new Audio()
@@ -20,7 +19,8 @@ function getAudio() {
 
 export function initPlayer() {
   if (isMobile) {
-    // No SDK on mobile — just verify auth token is valid
+    // Web Playback SDK doesn't work on iOS/Android.
+    // We use preview URLs played directly in the browser instead.
     return getToken().then(() => {})
   }
 
@@ -56,37 +56,15 @@ export function initPlayer() {
 
 export async function playSong(uri, previewUrl) {
   if (isMobile) {
-    if (previewUrl) {
-      // Play 30-second preview directly in the browser — no Spotify app shown
-      const audio = getAudio()
-      audio.src = previewUrl
-      await audio.play()
-      return
-    }
-    // No preview available — fall back to Spotify Connect
-    const token = await getToken()
-    const res = await fetch('https://api.spotify.com/v1/me/player/play', {
-      method: 'PUT',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uris: [uri] }),
-    })
-    if (res.status === 404) {
-      const devRes = await fetch('https://api.spotify.com/v1/me/player/devices', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const devData = await devRes.json()
-      const device = devData.devices?.[0]
-      if (!device) throw new Error('No preview available. Open the Spotify app on your phone first, then press Play.')
-      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device.id}`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uris: [uri] }),
-      })
-    }
+    // Always use preview URL on mobile — tracks without one are filtered out at fetch time
+    if (!previewUrl) throw new Error('No preview available for this track.')
+    const audio = getAudio()
+    audio.src = previewUrl
+    await audio.play()
     return
   }
 
-  // Desktop — Web Playback SDK
+  // Desktop — full song via Web Playback SDK
   const id = await deviceReady
   const token = await getToken()
   await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${id}`, {
@@ -98,8 +76,8 @@ export async function playSong(uri, previewUrl) {
 
 export async function pauseSong() {
   try {
-    if (isMobile && audioEl) {
-      audioEl.pause()
+    if (isMobile) {
+      audioEl?.pause()
       return
     }
     const token = await getToken()

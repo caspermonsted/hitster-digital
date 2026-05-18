@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { fetchTracks } from '../spotify/api'
-import { initPlayer, playSong, pauseSong } from '../spotify/player'
+import { initPlayer, playSong, pauseSong, isMobile } from '../spotify/player'
 
 const DEMO_TRACKS = [
   { uri: 'd1', title: 'Bohemian Rhapsody', artist: 'Queen', year: 1975, albumArt: null },
@@ -115,8 +115,8 @@ export default function Game({ settings, onQuit }) {
           t = shuffled(DEMO_TRACKS)
         } else {
           await initPlayer()
-          t = await fetchTracks(settings)
-          if (t.length === 0) throw new Error('No songs found with the selected settings.')
+          t = await fetchTracks({ ...settings, mobileOnly: isMobile })
+          if (t.length === 0) throw new Error('No songs found. Try selecting more decades.')
         }
         setTracks(t)
         const a1 = randomAnchorYear(settings.decades)

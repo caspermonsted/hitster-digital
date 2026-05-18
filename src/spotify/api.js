@@ -36,7 +36,7 @@ const POPULARITY = {
   hard:   { min: 0,  max: 100 },
 }
 
-export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
+export async function fetchTracks({ decades, difficulty, genre, count = 60, mobileOnly = false }) {
   const { min, max } = POPULARITY[difficulty]
   const all = []
 
@@ -53,7 +53,9 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
     const filtered = data.tracks.items.filter(t => {
       if (!t.album?.release_date) return false
       const year = parseInt(t.album.release_date.slice(0, 4))
-      return decades.some(d => year >= DECADE_RANGES[d][0] && year <= DECADE_RANGES[d][1])
+      if (!decades.some(d => year >= DECADE_RANGES[d][0] && year <= DECADE_RANGES[d][1])) return false
+      if (mobileOnly && !t.preview_url) return false
+      return true
     })
     all.push(...filtered)
   }
