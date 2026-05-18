@@ -54,8 +54,8 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60, mobi
   // Fetch pages until we have enough tracks — usually one page of 50 is sufficient.
   // We only fetch more if filtering (especially mobileOnly) leaves us short.
   const needed = Math.max(count, 20)
-  for (let offset = 0; offset < 150 && all.length < needed; offset += 50) {
-    const url = `/search?q=${q}&type=track&limit=50&offset=${offset}`
+  for (let offset = 0; offset < 200 && all.length < needed; offset += 20) {
+    const url = `/search?q=${q}&type=track&limit=20&offset=${offset}`
     const data = await apiFetch(url)
     if (!data.tracks?.items?.length) break
     const filtered = data.tracks.items.filter(t => {
