@@ -598,7 +598,7 @@ export default function Game({ settings, onQuit }) {
               if (it.kind === 'slot') {
                 const j = it.idx
                 const isHover = hoverSlot === j
-                const isPlaced = phase !== PHASE.LISTENING && placedSlot === j
+                const isPlaced = phase !== PHASE.LISTENING && placedSlot === j && !(phase === PHASE.JUDGED && isCorrect)
                 return (
                   <div
                     key={`s${j}`}
