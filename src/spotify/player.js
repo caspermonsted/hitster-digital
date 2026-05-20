@@ -7,31 +7,40 @@ const deviceReady = new Promise(r => { deviceReadyResolve = r })
 
 export const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-export async function initPlayer() {
-  if (isMobile) {
-    const token = await getToken()
-    const res = await fetch('https://api.spotify.com/v1/me/player/devices', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+// ─── Mobile: HTML5 audio (preview URLs) ──────────────────────────────────────
+
+let audioEl = null
+function getAudio() {
+  if (!audioEl) {
+    audioEl = new Audio()
+    audioEl.volume = 0.9
+  }
+  return audioEl
+}
+
+// Cache iTunes lookups so we don't re-fetch the same track twice
+const itunesCache = new Map()
+
+async function getItunesPreview(trackId, title, artist) {
+  if (itunesCache.has(trackId)) return itunesCache.get(trackId)
+  try {
+    const q = encodeURIComponent(`${artist} ${title}`)
+    const res = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&limit=5`)
     const data = await res.json()
-    const device = data.devices?.find(d => d.is_active) ?? data.devices?.[0]
-    if (!device) {
-      throw new Error('Open the Spotify app on your phone, then start the game.')
-    }
-    deviceId = device.id
-    // Activate Spotify's audio session: transfer with play:true, then pause immediately.
-    // iOS requires an active session before background play commands work.
-    await fetch('https://api.spotify.com/v1/me/player', {
-      method: 'PUT',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ device_ids: [deviceId], play: true }),
-    })
-    await new Promise(r => setTimeout(r, 400))
-    await fetch('https://api.spotify.com/v1/me/player/pause', {
-      method: 'PUT',
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    return
+    const url = data.results?.[0]?.previewUrl ?? null
+    itunesCache.set(trackId, url)
+    return url
+  } catch {
+    return null
+  }
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+
+export function initPlayer() {
+  if (isMobile) {
+    // Mobile uses HTML5 audio — no Spotify SDK needed, just validate the token.
+    return getToken().then(() => {})
   }
 
   return new Promise((resolve, reject) => {
@@ -64,8 +73,30 @@ export async function initPlayer() {
   })
 }
 
-export async function playSong(uri, _previewUrl, resume = false) {
-  const id = isMobile ? deviceId : await deviceReady
+// ─── Playback ─────────────────────────────────────────────────────────────────
+
+export async function playSong(uri, previewUrl, resume = false) {
+  if (isMobile) {
+    const audio = getAudio()
+    if (resume) {
+      await audio.play()
+      return
+    }
+    // Use Spotify preview URL if available, otherwise fall back to iTunes
+    let url = previewUrl
+    if (!url) {
+      // Extract title/artist from the track — passed via the track object in Game.jsx
+      // We stash them on the audio element as a workaround to avoid threading track data here
+      url = audio._itunesUrl ?? null
+    }
+    if (!url) throw new Error('No preview available for this track.')
+    audio.src = url
+    await audio.play()
+    return
+  }
+
+  // Desktop — full song via Web Playback SDK
+  const id = await deviceReady
   const token = await getToken()
   const res = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${id}`, {
     method: 'PUT',
@@ -80,13 +111,34 @@ export async function playSong(uri, _previewUrl, resume = false) {
   }
 }
 
+export async function playSongMobile(track) {
+  const audio = getAudio()
+  let url = track.previewUrl
+  if (!url) {
+    url = await getItunesPreview(track.id, track.title, track.artist)
+  }
+  if (!url) throw new Error(`No preview found for "${track.title}".`)
+  audio.src = url
+  await audio.play()
+}
+
 export async function pauseSong() {
   try {
+    if (isMobile) {
+      audioEl?.pause()
+      return
+    }
     const token = await getToken()
     await fetch('https://api.spotify.com/v1/me/player/pause', {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}` },
     })
+  } catch (_) {}
+}
+
+export async function resumeSongMobile() {
+  try {
+    await audioEl?.play()
   } catch (_) {}
 }
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { fetchTracks } from '../spotify/api'
-import { initPlayer, playSong, pauseSong, isMobile } from '../spotify/player'
+import { initPlayer, playSong, playSongMobile, pauseSong, resumeSongMobile, isMobile } from '../spotify/player'
 
 const DEMO_TRACKS = [
   { uri: 'd1', title: 'Bohemian Rhapsody', artist: 'Queen', year: 1975, albumArt: null },
@@ -139,7 +139,10 @@ export default function Game({ settings, onQuit }) {
 
   async function handlePlay() {
     try {
-      if (!settings.demo) await playSong(currentTrack.uri, currentTrack.previewUrl)
+      if (!settings.demo) {
+        if (isMobile) await playSongMobile(currentTrack)
+        else await playSong(currentTrack.uri, currentTrack.previewUrl)
+      }
       setPhase(PHASE.LISTENING)
       setPlaying(true)
       setProgress(0)
@@ -548,7 +551,10 @@ export default function Game({ settings, onQuit }) {
                 if (!settings.demo) pauseSong()
                 setPlaying(false)
               } else {
-                if (!settings.demo) await playSong(currentTrack.uri, currentTrack.previewUrl, true)
+                if (!settings.demo) {
+                  if (isMobile) resumeSongMobile()
+                  else await playSong(currentTrack.uri, currentTrack.previewUrl, true)
+                }
                 setPlaying(true)
               }
             }}
