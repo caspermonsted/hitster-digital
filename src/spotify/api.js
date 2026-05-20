@@ -110,16 +110,20 @@ export async function fetchTracks({ decades, difficulty, genre, count = 40, excl
   }))
 
   if (enrichPreviews) {
-    // For tracks without a Spotify preview URL, look up iTunes in parallel
+    const withSpotify = candidates.filter(t => t.previewUrl).length
+    console.log(`[fetchTracks] ${candidates.length} candidates, ${withSpotify} have Spotify preview, checking iTunes for ${candidates.length - withSpotify}...`)
+
     await Promise.all(
       candidates
         .filter(t => !t.previewUrl)
         .map(async t => {
           t.previewUrl = await itunesPreview(t.title, t.artist)
+          console.log(`[iTunes] "${t.title}" → ${t.previewUrl ? '✓' : '✗'}`)
         })
     )
-    // Drop tracks with no preview from either source
+
     candidates = candidates.filter(t => t.previewUrl)
+    console.log(`[fetchTracks] ${candidates.length} playable tracks after preview filter`)
   }
 
   return candidates

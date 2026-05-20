@@ -96,6 +96,7 @@ export async function playSong(uri, previewUrl, resume = false) {
 }
 
 export async function playSongMobile(track) {
+  console.log(`[playSongMobile] "${track.title}" previewUrl=${track.previewUrl}`)
   const audio = getAudio()
   if (!track.previewUrl) throw new Error('NO_PREVIEW')
   audio.src = track.previewUrl
