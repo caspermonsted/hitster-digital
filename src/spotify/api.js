@@ -35,23 +35,29 @@ const DECADE_RANGES = {
 }
 
 const POPULARITY = {
-  easy:   { min: 60, max: 100 },
-  medium: { min: 30, max: 100 },
-  hard:   { min: 0,  max: 100 },
+  easy:   { min: 60 },
+  medium: { min: 30 },
+  hard:   { min: 0  },
+}
+
+// Bias the random offset toward popular (low offset) or obscure (high offset)
+const OFFSET_RANGE = {
+  easy:   { min: 0,   max: 100 },
+  medium: { min: 50,  max: 300 },
+  hard:   { min: 200, max: 700 },
 }
 
 export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
+  const { min: popMin } = POPULARITY[difficulty]
+  const { min: offsetMin, max: offsetMax } = OFFSET_RANGE[difficulty]
   const all = []
 
-  // Query each decade separately with a random offset so every game pulls
-  // from a different part of Spotify's catalogue.
   for (const decade of decades) {
     const [from, to] = DECADE_RANGES[decade]
     let q = `year:${from}-${to}`
     if (genre && genre !== 'all') q += ` genre:${genre}`
 
-    // Random offset 0–400 so we don't always get the same top hits
-    const startOffset = Math.floor(Math.random() * 400)
+    const startOffset = offsetMin + Math.floor(Math.random() * (offsetMax - offsetMin))
     const decadeTracks = []
 
     for (let page = 0; page < 3 && decadeTracks.length < 20; page++) {
@@ -63,7 +69,9 @@ export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
       const filtered = data.tracks.items.filter(t => {
         if (!t.album?.release_date) return false
         const year = parseInt(t.album.release_date.slice(0, 4))
-        return year >= from && year <= to
+        if (year < from || year > to) return false
+        if (t.popularity < popMin) return false
+        return true
       })
       decadeTracks.push(...filtered)
     }
