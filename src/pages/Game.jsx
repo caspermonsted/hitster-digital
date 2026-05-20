@@ -92,6 +92,8 @@ export default function Game({ settings, onQuit }) {
   const [drag, setDrag] = useState(null)
   const [hoverSlot, setHoverSlot] = useState(null)
   const slotsRef = useRef([])
+  const seenIds = useRef(new Set())
+  const fetchingMore = useRef(false)
 
   const songLen = 180
   useEffect(() => {
@@ -107,6 +109,23 @@ export default function Game({ settings, onQuit }) {
     return () => timers.forEach(clearTimeout)
   }, [phase])
 
+  // Silently top up the track list when running low
+  useEffect(() => {
+    if (settings.demo || fetchingMore.current) return
+    const remaining = tracks.length - trackIdx
+    if (remaining > 15 || tracks.length === 0) return
+    fetchingMore.current = true
+    fetchTracks({ ...settings, count: 30, exclude: seenIds.current })
+      .then(more => {
+        if (more.length > 0) {
+          more.forEach(t => seenIds.current.add(t.id))
+          setTracks(prev => [...prev, ...more])
+        }
+      })
+      .catch(() => {}) // non-critical, game continues with existing tracks
+      .finally(() => { fetchingMore.current = false })
+  }, [trackIdx, tracks.length])
+
   useEffect(() => {
     async function init() {
       try {
@@ -115,8 +134,9 @@ export default function Game({ settings, onQuit }) {
           t = shuffled(DEMO_TRACKS)
         } else {
           await initPlayer()
-          t = await fetchTracks({ ...settings, mobileOnly: false })
+          t = await fetchTracks({ ...settings })
           if (t.length === 0) throw new Error('No songs found. Try selecting more decades.')
+          t.forEach(track => seenIds.current.add(track.id))
         }
         setTracks(t)
         const a1 = randomAnchorYear(settings.decades)

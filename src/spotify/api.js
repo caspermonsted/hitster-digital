@@ -47,12 +47,11 @@ const OFFSET_RANGE = {
   hard:   { min: 200, max: 700 },
 }
 
-export async function fetchTracks({ decades, difficulty, genre, count = 100 }) {
+export async function fetchTracks({ decades, difficulty, genre, count = 40, exclude = new Set() }) {
   const { min: popMin } = POPULARITY[difficulty]
   const { min: offsetMin, max: offsetMax } = OFFSET_RANGE[difficulty]
   const all = []
 
-  // How many tracks to aim for per decade, with a buffer for popularity filtering
   const perDecadeTarget = Math.ceil((count * 1.5) / decades.length)
 
   for (const decade of decades) {
@@ -71,6 +70,7 @@ export async function fetchTracks({ decades, difficulty, genre, count = 100 }) {
       if (!data.tracks?.items?.length) break
       const filtered = data.tracks.items.filter(t => {
         if (!t.album?.release_date) return false
+        if (exclude.has(t.id)) return false
         const year = parseInt(t.album.release_date.slice(0, 4))
         if (year < from || year > to) return false
         if (t.popularity < popMin) return false
