@@ -17,7 +17,7 @@ async function apiFetch(path, retry = 0) {
   }
   const text = await res.text()
   if (!res.ok) {
-    let msg = `Spotify error (${res.status}) [${path}]`
+    let msg = `Spotify error (${res.status})`
     try { const j = JSON.parse(text); if (j.error?.message) msg += ': ' + j.error.message } catch (_) {}
     throw new Error(msg)
   }
@@ -40,32 +40,35 @@ const POPULARITY = {
   hard:   { min: 0,  max: 100 },
 }
 
-export async function fetchTracks({ decades, difficulty, genre, count = 60, mobileOnly = false }) {
-  const { min, max } = POPULARITY[difficulty]
+export async function fetchTracks({ decades, difficulty, genre, count = 60 }) {
   const all = []
 
-  const years = decades.flatMap(d => DECADE_RANGES[d])
-  const minYear = Math.min(...years)
-  const maxYear = Math.max(...years)
+  // Query each decade separately with a random offset so every game pulls
+  // from a different part of Spotify's catalogue.
+  for (const decade of decades) {
+    const [from, to] = DECADE_RANGES[decade]
+    let q = `year:${from}-${to}`
+    if (genre && genre !== 'all') q += ` genre:${genre}`
 
-  let q = `year:${minYear}-${maxYear}`
-  if (genre && genre !== 'all') q += ` genre:${genre}`
+    // Random offset 0–400 so we don't always get the same top hits
+    const startOffset = Math.floor(Math.random() * 400)
+    const decadeTracks = []
 
-  // Fetch pages until we have enough tracks — usually one page of 50 is sufficient.
-  // We only fetch more if filtering (especially mobileOnly) leaves us short.
-  const needed = Math.max(count, 20)
-  for (let offset = 0; offset < 200 && all.length < needed; offset += 20) {
-    const url = `/search?q=${encodeURIComponent(q)}&type=track&offset=${offset}`
-    const data = await apiFetch(url)
-    if (!data.tracks?.items?.length) break
-    const filtered = data.tracks.items.filter(t => {
-      if (!t.album?.release_date) return false
-      const year = parseInt(t.album.release_date.slice(0, 4))
-      if (!decades.some(d => year >= DECADE_RANGES[d][0] && year <= DECADE_RANGES[d][1])) return false
-      if (mobileOnly && !t.preview_url) return false
-      return true
-    })
-    all.push(...filtered)
+    for (let page = 0; page < 3 && decadeTracks.length < 20; page++) {
+      const offset = startOffset + page * 20
+      if (offset > 980) break
+      const url = `/search?q=${encodeURIComponent(q)}&type=track&offset=${offset}`
+      const data = await apiFetch(url)
+      if (!data.tracks?.items?.length) break
+      const filtered = data.tracks.items.filter(t => {
+        if (!t.album?.release_date) return false
+        const year = parseInt(t.album.release_date.slice(0, 4))
+        return year >= from && year <= to
+      })
+      decadeTracks.push(...filtered)
+    }
+
+    all.push(...decadeTracks)
   }
 
   if (all.length === 0) throw new Error('No songs found. Try selecting more decades or a different genre.')
