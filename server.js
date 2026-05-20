@@ -1,12 +1,13 @@
 import express from 'express'
-import { join } from 'path'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
 
 const app = express()
 const PORT = process.env.PORT || 3000
-const DIST = join(process.cwd(), 'dist')
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 app.use(express.json())
-app.use(express.static(DIST))
+app.use(express.static(join(__dirname, 'dist')))
 
 app.post('/api/log', (req, res) => {
   const { event, ...data } = req.body ?? {}
@@ -16,8 +17,8 @@ app.post('/api/log', (req, res) => {
 })
 
 // SPA fallback
-app.use((_req, res) => {
-  res.sendFile(join(DIST, 'index.html'))
+app.get('*', (_req, res) => {
+  res.sendFile(join(__dirname, 'dist', 'index.html'))
 })
 
-app.listen(PORT, () => console.log(`Side A running on port ${PORT} — serving ${DIST}`))
+app.listen(PORT, () => console.log(`Side A running on port ${PORT}`))
