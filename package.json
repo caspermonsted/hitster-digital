@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "serve dist"
+    "start": "serve -s dist"
   },
   "dependencies": {
     "express": "^5.2.1",
