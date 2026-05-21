@@ -25,9 +25,16 @@ async function itunesPreview(title, artist) {
   try {
     const q = encodeURIComponent(`${artist} ${title}`)
     const res = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&limit=10`)
+    if (!res.ok) {
+      console.warn(`[iTunes] HTTP ${res.status} for "${title}" by ${artist}`)
+      return null
+    }
     const data = await res.json()
-    return data.results?.find(r => r.previewUrl)?.previewUrl ?? null
-  } catch {
+    const found = data.results?.find(r => r.previewUrl)?.previewUrl ?? null
+    console.log(`[iTunes] "${title}" by ${artist} → ${found ? 'FOUND' : 'not found'} (${data.results?.length ?? 0} results)`)
+    return found
+  } catch (e) {
+    console.warn(`[iTunes] FAILED for "${title}" by ${artist}:`, e.message)
     return null
   }
 }
