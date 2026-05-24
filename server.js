@@ -91,6 +91,7 @@ async function getGeo(req) {
       `https://api-bdc.net/data/ip-geolocation-with-confidence?ip=${ip}&localityLanguage=en&key=${apiKey}`
     )
     const d = await r.json()
+    console.log('BigDataCloud:', JSON.stringify(d).slice(0, 400))
     return {
       country_code: d.country?.isoAlpha2 || d.countryCode || null,
       city: d.city || d.location?.city || d.localityName || null,
