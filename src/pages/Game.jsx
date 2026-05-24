@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { fetchTracks } from '../spotify/api'
 import { initPlayer, playSong, playSongMobile, pauseSong, resumeSongMobile, isMobile } from '../spotify/player'
 import { log } from '../log'
+import { sessionStart, sessionEnd } from '../session'
 
 const DEMO_TRACKS = [
   { uri: 'd1', title: 'Bohemian Rhapsody', artist: 'Queen', year: 1975, albumArt: null },
@@ -95,6 +96,7 @@ export default function Game({ settings, onQuit }) {
   const slotsRef = useRef([])
   const seenIds = useRef(new Set())
   const fetchingMore = useRef(false)
+  const playedTracksRef = useRef([])
 
   const songLen = 180
   useEffect(() => {
@@ -143,6 +145,15 @@ export default function Game({ settings, onQuit }) {
             decades: settings.decades,
             difficulty: settings.difficulty,
             genre: settings.genre,
+            tracks_loaded: t.length,
+          })
+          sessionStart({
+            platform: isMobile ? 'ios' : 'desktop',
+            num_teams: settings.teams.length,
+            difficulty: settings.difficulty,
+            decades: settings.decades,
+            genre: settings.genre || null,
+            target: settings.target ?? 10,
             tracks_loaded: t.length,
           })
         }
@@ -239,6 +250,7 @@ export default function Game({ settings, onQuit }) {
     setPhase(PHASE.REVEALED)
     setPlaying(false)
     if (!settings.demo) pauseSong()
+    if (!settings.demo) playedTracksRef.current.push({ id: currentTrack.id, year: currentTrack.year })
   }
 
   function handleJudge(guessedTitle) {
@@ -267,11 +279,31 @@ export default function Game({ settings, onQuit }) {
         scores: teams.map(t => ({ name: t.name, score: t.score })),
         winner: teams[0].score > teams[1].score ? teams[0].name : teams[1].score > teams[0].score ? teams[1].name : 'draw',
       })
+      if (!settings.demo) {
+        sessionEnd({
+          completed: true,
+          rounds_played: trackIdx + 1,
+          final_scores: teams.map(t => ({ name: t.name, score: t.score })),
+          songs: playedTracksRef.current,
+        })
+      }
       setPhase(PHASE.DONE)
     } else {
       setRoundCount(r => r + 1)
       setPhase(PHASE.HANDOFF)
     }
+  }
+
+  function handleQuit() {
+    if (!settings.demo) {
+      sessionEnd({
+        completed: false,
+        rounds_played: trackIdx,
+        final_scores: teams.map(t => ({ name: t.name, score: t.score })),
+        songs: playedTracksRef.current,
+      })
+    }
+    onQuit()
   }
 
   function handleBeginTurn() {
@@ -518,7 +550,7 @@ export default function Game({ settings, onQuit }) {
         borderBottom: '1px solid var(--border)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <button onClick={onQuit} style={{ background: 'none', border: '1px solid var(--border)', padding: '0.35rem 0.6rem', cursor: 'pointer' }}>
+        <button onClick={handleQuit} style={{ background: 'none', border: '1px solid var(--border)', padding: '0.35rem 0.6rem', cursor: 'pointer' }}>
           <span className="mono" style={{ fontSize: '0.62rem' }}>✕</span>
         </button>
         <div style={{ textAlign: 'center' }}>
@@ -529,7 +561,7 @@ export default function Game({ settings, onQuit }) {
             {team.name}'s turn
           </div>
         </div>
-        <button onClick={onQuit} style={{ background: 'none', border: '1px solid var(--border)', padding: '0.35rem 0.6rem', cursor: 'pointer' }}>
+        <button onClick={handleQuit} style={{ background: 'none', border: '1px solid var(--border)', padding: '0.35rem 0.6rem', cursor: 'pointer' }}>
           <span className="mono" style={{ fontSize: '0.8rem' }}>⋯</span>
         </button>
       </header>
