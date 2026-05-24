@@ -100,6 +100,7 @@ export default function Game({ settings, onQuit }) {
   const fetchingMore = useRef(false)
   const playedTracksRef = useRef([])
 
+
   const songLen = 180
   useEffect(() => {
     if (!playing || phase === PHASE.REVEALED || phase === PHASE.JUDGED) return
@@ -538,14 +539,14 @@ export default function Game({ settings, onQuit }) {
 
   return (
     <div
-      style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: 'var(--bg)', maxWidth: 480, margin: '0 auto', userSelect: 'none' }}
+      style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: 'var(--bg)', userSelect: 'none' }}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
     >
       {/* Header */}
-      <header style={{
-        padding: '0.75rem 1.25rem',
-        borderBottom: '1px solid var(--border)',
+      <header style={{ borderBottom: '1px solid var(--border)' }}>
+      <div style={{
+        maxWidth: 480, margin: '0 auto', padding: '0.75rem 1.25rem',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <button onClick={handleQuit} style={{ background: 'none', border: '1px solid var(--border)', padding: '0.35rem 0.6rem', cursor: 'pointer' }}>
@@ -562,6 +563,7 @@ export default function Game({ settings, onQuit }) {
         <button onClick={handleQuit} style={{ background: 'none', border: '1px solid var(--border)', padding: '0.35rem 0.6rem', cursor: 'pointer' }}>
           <span className="mono" style={{ fontSize: '0.8rem' }}>⋯</span>
         </button>
+      </div>
       </header>
 
       {/* Scores */}
@@ -588,7 +590,7 @@ export default function Game({ settings, onQuit }) {
       </div>
 
       {/* Stage: turntable + mystery card */}
-      <div style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1.25rem 1rem 0.5rem', position: 'relative' }}>
+      <div style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1.25rem 1rem 0.5rem', position: 'relative', maxWidth: 480, margin: '0 auto', width: '100%' }}>
         <Vinyl size={140} spinning={spinning} color={team.color} year={revealed ? currentTrack?.year : null} />
 
         {/* Mystery card — shown during READY and LISTENING (unless dragging) */}
@@ -616,7 +618,7 @@ export default function Game({ settings, onQuit }) {
       </div>
 
       {/* Playback bar — always rendered to avoid timeline jumping */}
-      <div style={{ padding: '0 1.25rem 0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', visibility: (phase !== PHASE.READY && phase !== PHASE.REVEALED && phase !== PHASE.JUDGED) ? 'visible' : 'hidden' }}>
+      <div style={{ padding: '0 1.25rem 0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', visibility: (phase !== PHASE.READY && phase !== PHASE.REVEALED && phase !== PHASE.JUDGED) ? 'visible' : 'hidden', maxWidth: 480, margin: '0 auto', width: '100%' }}>
           <button
             onClick={() => {
               if (playing) {
@@ -643,7 +645,7 @@ export default function Game({ settings, onQuit }) {
         </div>
 
       {/* Hint text */}
-      <div style={{ padding: '0 1.25rem 0.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem', minHeight: 32 }}>
+      <div style={{ padding: '0 1.25rem 0.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem', minHeight: 32, maxWidth: 480, margin: '0 auto', width: '100%' }}>
         <span style={{ color: 'var(--accent)', fontFamily: "'JetBrains Mono', monospace", fontSize: '0.8rem', marginTop: 1 }}>
           {phase === PHASE.LISTENING ? '↓' : '·'}
         </span>
@@ -723,8 +725,8 @@ export default function Game({ settings, onQuit }) {
       </div>
 
       {/* Actions */}
-      <div style={{ marginTop: 'auto' }}>
-        <div style={{ borderTop: '3px solid var(--ink)' }} />
+      <div style={{ marginTop: 'auto', borderTop: '3px solid var(--ink)' }}>
+        <div style={{ maxWidth: 480, margin: '0 auto' }}>
         {phase === PHASE.READY && (
           <button onClick={handlePlay} className="btn-reveal">
             <div><div className="mono" style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.6)', marginBottom: 2 }}>READY?</div>
@@ -790,6 +792,7 @@ export default function Game({ settings, onQuit }) {
             <span>→</span>
           </button>
         )}
+        </div>
       </div>
     </div>
   )
