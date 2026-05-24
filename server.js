@@ -42,6 +42,31 @@ async function initDb() {
 }
 initDb()
 
+// ── Spotify Client Credentials ─────────────────────────────────
+let ccToken = null
+let ccExpiry = 0
+
+async function getSpotifyToken() {
+  if (ccToken && Date.now() < ccExpiry - 60000) return ccToken
+  const clientId = process.env.SPOTIFY_CLIENT_ID
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
+  if (!clientId || !clientSecret) throw new Error('Spotify credentials not configured on server')
+  const res = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+    },
+    body: 'grant_type=client_credentials',
+  })
+  const data = await res.json()
+  if (data.error) throw new Error(data.error_description || data.error)
+  ccToken = data.access_token
+  ccExpiry = Date.now() + data.expires_in * 1000
+  console.log('Spotify token refreshed')
+  return ccToken
+}
+
 // ── Geolocation helpers ────────────────────────────────────────
 function getClientIp(req) {
   const fwd = req.headers['x-forwarded-for']
@@ -50,7 +75,6 @@ function getClientIp(req) {
 }
 
 async function getGeo(req) {
-  // Fast path: CDN already resolved country
   const cdnCountry =
     req.headers['cf-ipcountry'] ||
     req.headers['x-vercel-ip-country'] ||
@@ -78,6 +102,27 @@ async function getGeo(req) {
 
 // ── Static files ───────────────────────────────────────────────
 app.use(express.static(DIST))
+
+// ── Spotify search proxy ───────────────────────────────────────
+app.get('/api/search', async (req, res) => {
+  try {
+    const token = await getSpotifyToken()
+    const qs = new URLSearchParams(req.query).toString()
+    const r = await fetch(`https://api.spotify.com/v1/search?${qs}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (r.status === 429) {
+      const retryAfter = r.headers.get('Retry-After')
+      const wait = retryAfter ? ` Wait ${retryAfter} seconds.` : ' Wait a few minutes.'
+      return res.status(429).json({ error: { message: `Spotify rate limit reached.${wait}` } })
+    }
+    if (r.status === 204) return res.json({})
+    const data = await r.json()
+    res.json(data)
+  } catch (e) {
+    res.status(500).json({ error: { message: e.message } })
+  }
+})
 
 // ── Deezer preview proxy ───────────────────────────────────────
 app.get('/api/preview', async (req, res) => {

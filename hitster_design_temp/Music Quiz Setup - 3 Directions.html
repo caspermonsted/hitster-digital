@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Music Quiz — New Game Setup, 3 Directions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Archivo+Black&display=swap" rel="stylesheet" />
+  <style>
+    html, body { margin: 0; padding: 0; background: #1a1a1a; }
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .phone-frame {
+      width: 390px; height: 844px;
+      overflow-y: auto;
+      background: #000;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      border-radius: 28px;
+    }
+    .phone-frame::-webkit-scrollbar { width: 4px; }
+    .phone-frame::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="screens/direction-1-press.jsx"></script>
+  <script type="text/babel" src="screens/direction-2-cream.jsx"></script>
+  <script type="text/babel" src="screens/direction-3-acid.jsx"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const App = () => (
+      <DesignCanvas
+        title="Music quiz · Nyt spil"
+        subtitle="Three editorial directions for the setup screen — drag artboards to reorder, click to focus."
+      >
+        <DCSection id="setup" title="New Game · Setup screen">
+          <DCArtboard id="dir1" label="Direction 1 · The Listening Post (Press)" width={390} height={1380}>
+            <div style={{width: '100%', height: '100%', overflow: 'auto'}}>
+              <Direction1 />
+            </div>
+          </DCArtboard>
+          <DCArtboard id="dir2" label="Direction 2 · Side A (Cream)" width={390} height={1440}>
+            <div style={{width: '100%', height: '100%', overflow: 'auto'}}>
+              <Direction2 />
+            </div>
+          </DCArtboard>
+          <DCArtboard id="dir3" label="Direction 3 · Frequency 102.6 (Acid)" width={390} height={1440}>
+            <div style={{width: '100%', height: '100%', overflow: 'auto', background: '#0d0d0d'}}>
+              <Direction3 />
+            </div>
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+    );
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

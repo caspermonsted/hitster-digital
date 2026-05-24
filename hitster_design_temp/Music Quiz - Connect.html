@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Side A — Welcome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:          #f1e1dc;
+      --bg-card:     #f9ece8;
+      --ink:         #1f1715;
+      --ink-soft:    #4a3a36;
+      --rule:        #dcc4bd;
+      --rule-soft:   #ead7d0;
+      --muted:       #7a5e58;
+      --accent:      #c4533a;
+      --accent-soft: #d4a13a;
+      --on-accent:   #fff;
+      --spotify:     #1db954;
+      --font-display:'Playfair Display', serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+    body { display: flex; justify-content: center; }
+
+    .app {
+      width: 100%; max-width: 480px;
+      min-height: 100vh;
+      padding: 22px 24px 28px;
+      display: flex; flex-direction: column;
+      position: relative;
+    }
+
+    /* ─── masthead ─── */
+    .masthead {
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      letter-spacing: 0.22em; color: var(--muted);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    /* ─── hero ─── */
+    .hero {
+      position: relative;
+      padding: 36px 0 28px;
+      overflow: hidden;
+    }
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.22em; color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 132px; line-height: 0.86;
+      margin: 0;
+      letter-spacing: -0.05em;
+      color: var(--ink);
+      position: relative; z-index: 2;
+    }
+    .hero-title .a-italic { font-style: italic; color: var(--accent); }
+    .hero-tagline {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 22px; font-weight: 500; line-height: 1.25;
+      letter-spacing: -0.01em;
+      margin: 18px 0 0;
+      color: var(--ink-soft);
+      max-width: 340px;
+    }
+    .hero-tagline em {
+      font-style: italic; color: var(--accent);
+    }
+    .hero-sub {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.16em; color: var(--muted);
+      margin-top: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .hero-sub-rule {
+      flex: 0 0 24px; border-top: 1px solid var(--accent); height: 0;
+    }
+
+    /* ─── vinyl ─── */
+    .sleeve {
+      position: absolute;
+      top: 14px; right: -70px;
+      width: 220px; height: 220px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.45;
+      animation: spin 22s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .sleeve-disc {
+      width: 100%; height: 100%; border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%,
+          #181410 0 24%,
+          #2a221c 24% 24.5%,
+          #181410 24.5% 34%,
+          #2a221c 34% 34.5%,
+          #181410 34.5% 44%,
+          #2a221c 44% 44.5%,
+          #181410 44.5% 100%);
+      position: relative;
+      box-shadow: 0 12px 40px rgba(31,23,21,0.18);
+    }
+    .sleeve-label {
+      position: absolute; left: 50%; top: 50%;
+      width: 38%; aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-style: italic;
+      color: #fff; font-size: 12px; letter-spacing: 0.06em;
+    }
+    .sleeve-hole {
+      position: absolute; left: 50%; top: 50%;
+      width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px;
+      border-radius: 50%; background: var(--bg);
+    }
+
+    /* ─── how it works (3 quick beats) ─── */
+    .how {
+      flex: 1;
+      padding: 18px 0;
+      display: flex; flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .how-head {
+      display: flex; align-items: baseline; gap: 10px;
+      margin-bottom: 2px;
+    }
+    .how-num {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.18em; color: var(--accent);
+      border: 1px solid var(--accent); padding: 2px 6px;
+    }
+    .how-title {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 22px; font-weight: 800; line-height: 1;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+    .how-row {
+      display: grid; grid-template-columns: 24px 1fr;
+      gap: 14px;
+      padding: 6px 0;
+    }
+    .how-row-num {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 22px; font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .how-row-text {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 15px; line-height: 1.4;
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .how-row-text strong {
+      font-style: normal; font-weight: 700;
+      font-family: 'Inter', sans-serif;
+    }
+    .how-row-text em {
+      color: var(--accent);
+    }
+
+    /* ─── auth section ─── */
+    .auth {
+      padding: 22px 0 0;
+    }
+    .auth-kicker {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      letter-spacing: 0.22em; color: var(--muted);
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .auth-kicker-dot {
+      display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; background: var(--spotify);
+    }
+    .connect-btn {
+      width: 100%; border: none;
+      background: var(--spotify); color: #fff;
+      padding: 18px 22px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px;
+      transition: transform 0.15s, filter 0.15s;
+      font-family: inherit;
+      border-radius: 999px;
+    }
+    .connect-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+    .connect-btn:active { transform: translateY(0); }
+    .connect-btn-left {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .connect-logo {
+      width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .connect-logo svg { width: 22px; height: 22px; }
+    .connect-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px; font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .connect-arrow { font-size: 18px; }
+
+    .auth-alt {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: transparent;
+      border: 1px dashed var(--rule);
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer;
+      font-family: inherit;
+      width: 100%;
+      text-align: left;
+      transition: background 0.15s;
+    }
+    .auth-alt:hover { background: var(--bg-card); }
+    .auth-alt-left {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .auth-alt-tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 8px;
+      letter-spacing: 0.22em; color: var(--muted);
+    }
+    .auth-alt-title {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 16px; font-weight: 700;
+      color: var(--ink);
+    }
+    .auth-alt-arrow {
+      font-size: 16px; color: var(--ink-soft);
+    }
+
+    .auth-note {
+      margin-top: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; letter-spacing: 0.14em;
+      color: var(--muted);
+      line-height: 1.6;
+      display: flex; align-items: baseline; gap: 6px;
+    }
+    .auth-note em {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 11px; letter-spacing: 0;
+      color: var(--ink);
+    }
+    .auth-note-mark {
+      flex: 0 0 12px; height: 12px;
+      border-radius: 50%;
+      border: 1px solid var(--muted);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 8px; color: var(--muted);
+      transform: translateY(2px);
+    }
+
+    /* ─── footer ─── */
+    .foot {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--rule);
+      display: flex; justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace; font-size: 8px;
+      letter-spacing: 0.2em; color: var(--muted);
+    }
+    .foot a {
+      color: var(--ink-soft); text-decoration: none;
+      border-bottom: 1px dotted var(--muted);
+      padding-bottom: 1px;
+    }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "palette": "Blush",
+      "accent": "#c4533a"
+    }/*EDITMODE-END*/;
+
+    const PALETTES = {
+      "Cream":    { bg:'#efe7d3', card:'#f7f1e0', ink:'#1a1612', inkSoft:'#4a4036', rule:'#d4c8a8', ruleSoft:'#e3d9bd', muted:'#7a6a4a', onAccent:'#fff' },
+      "Blush":    { bg:'#f1e1dc', card:'#f9ece8', ink:'#1f1715', inkSoft:'#4a3a36', rule:'#dcc4bd', ruleSoft:'#ead7d0', muted:'#7a5e58', onAccent:'#fff' },
+      "Pistachio":{ bg:'#dfe3cf', card:'#ebeed9', ink:'#1f2418', inkSoft:'#3f4734', rule:'#c2c8a8', ruleSoft:'#d5d9b9', muted:'#6a7058', onAccent:'#fff' },
+      "Bone":     { bg:'#e6e1d6', card:'#efebe1', ink:'#181715', inkSoft:'#3e3c36', rule:'#c8c2b3', ruleSoft:'#dad3c2', muted:'#6e6a5e', onAccent:'#fff' },
+      "Midnight": { bg:'#1f1d24', card:'#28252e', ink:'#f0eadb', inkSoft:'#c8c1ad', rule:'#3a3640', ruleSoft:'#332f3a', muted:'#8a8474', onAccent:'#1a1612' },
+    };
+    const ACCENTS = ['#c4533a', '#7a3a4a', '#3a5d4a', '#2a4a7a', '#a86e2a'];
+
+    function applyTweaks(t) {
+      const p = PALETTES[t.palette] || PALETTES.Blush;
+      const r = document.documentElement.style;
+      r.setProperty('--bg', p.bg);
+      r.setProperty('--bg-card', p.card);
+      r.setProperty('--ink', p.ink);
+      r.setProperty('--ink-soft', p.inkSoft);
+      r.setProperty('--rule', p.rule);
+      r.setProperty('--rule-soft', p.ruleSoft);
+      r.setProperty('--muted', p.muted);
+      r.setProperty('--on-accent', p.onAccent);
+      r.setProperty('--accent', t.accent);
+    }
+
+    const SpotifyLogo = () => (
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.434a.624.624 0 01-.857.207c-2.347-1.434-5.302-1.759-8.781-.964a.624.624 0 11-.276-1.218c3.807-.866 7.073-.498 9.708 1.118a.624.624 0 01.206.857zm1.223-2.722a.78.78 0 01-1.073.257c-2.685-1.65-6.78-2.128-9.957-1.163a.78.78 0 11-.453-1.494c3.628-1.1 8.144-.566 11.226 1.327a.78.78 0 01.257 1.073zm.105-2.835c-3.22-1.913-8.532-2.089-11.605-1.156a.936.936 0 11-.543-1.792c3.529-1.07 9.397-.864 13.105 1.34a.936.936 0 01-.957 1.608z"/>
+      </svg>
+    );
+
+    const Welcome = () => {
+      const [usePreviews, setUsePreviews] = React.useState(false);
+      const connect = () => console.log('connect spotify');
+
+      return (
+        <div className="app">
+          <header className="masthead">
+            <span>NO. 047 · EST. MMXXVI</span>
+            <span>WELCOME</span>
+          </header>
+
+          <section className="hero">
+            <div className="sleeve">
+              <div className="sleeve-disc">
+                <div className="sleeve-label">SIDE A</div>
+                <div className="sleeve-hole"></div>
+              </div>
+            </div>
+            <div className="hero-eyebrow">A LISTENING GAME</div>
+            <h1 className="hero-title">
+              Side<br/>
+              <span className="a-italic">A.</span>
+            </h1>
+            <p className="hero-tagline">
+              A music timeline quiz for parties, families <em>and</em> obscure DJs.
+            </p>
+            <div className="hero-sub">
+              <span className="hero-sub-rule"></span>
+              <span>PLACE THE SONG · NAME THE ARTIST · WIN THE CARD</span>
+            </div>
+          </section>
+
+          <section className="how">
+            <div className="how-head">
+              <span className="how-num">§</span>
+              <h2 className="how-title">How it goes</h2>
+            </div>
+            <div className="how-row">
+              <span className="how-row-num">1</span>
+              <span className="how-row-text">A song plays. You don't see what it is.</span>
+            </div>
+            <div className="how-row">
+              <span className="how-row-num">2</span>
+              <span className="how-row-text">Slot it on your <em>timeline</em> — between the years you already have.</span>
+            </div>
+            <div className="how-row">
+              <span className="how-row-num">3</span>
+              <span className="how-row-text">Guess the title <em>or</em> the artist out loud. First to ten cards wins.</span>
+            </div>
+          </section>
+
+          <section className="auth">
+            <div className="auth-kicker">
+              <span className="auth-kicker-dot"></span>
+              <span>STEP 01 · MUSIC SOURCE</span>
+            </div>
+
+            <button className="connect-btn" onClick={connect}>
+              <span className="connect-btn-left">
+                <span className="connect-logo"><SpotifyLogo /></span>
+                <span className="connect-title">Continue with Spotify</span>
+              </span>
+              <span className="connect-arrow">→</span>
+            </button>
+
+            <p className="auth-note">
+              <span className="auth-note-mark">i</span>
+              <span>
+                <em>Spotify Premium</em> required for playback. We only access your audio
+                — no playlists, no following, no likes.
+              </span>
+            </p>
+          </section>
+
+          <footer className="foot">
+            <span>v0.4.7</span>
+            <span><a href="#">Privacy</a> · <a href="#">Terms</a></span>
+            <span>MADE IN CPH</span>
+          </footer>
+        </div>
+      );
+    };
+
+    const App = () => {
+      const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+      React.useEffect(() => { applyTweaks(tweaks); }, [tweaks]);
+      return (
+        <>
+          <Welcome />
+          <TweaksPanel title="Tweaks">
+            <TweakSection label="Palette">
+              <TweakSelect
+                label="Colors"
+                value={tweaks.palette}
+                options={Object.keys(PALETTES)}
+                onChange={(v) => setTweak('palette', v)}
+              />
+              <TweakColor
+                label="Accent"
+                value={tweaks.accent}
+                options={ACCENTS}
+                onChange={(v) => setTweak('accent', v)}
+              />
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

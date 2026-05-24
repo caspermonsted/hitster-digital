@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { fetchTracks } from '../spotify/api'
-import { initPlayer, playSong, playSongMobile, pauseSong, resumeSongMobile, isMobile } from '../spotify/player'
+import { playSong, resumeSong, pauseSong } from '../spotify/player'
+
+const platform = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'ios' : 'desktop'
 import { log } from '../log'
 import { sessionStart, sessionEnd } from '../session'
 
@@ -118,7 +120,7 @@ export default function Game({ settings, onQuit }) {
     const remaining = tracks.length - trackIdx
     if (remaining > 15 || tracks.length === 0) return
     fetchingMore.current = true
-    fetchTracks({ ...settings, count: 30, exclude: seenIds.current, enrichPreviews: isMobile })
+    fetchTracks({ ...settings, count: 30, exclude: seenIds.current, enrichPreviews: true })
       .then(more => {
         if (more.length > 0) {
           more.forEach(t => seenIds.current.add(t.id))
@@ -136,19 +138,18 @@ export default function Game({ settings, onQuit }) {
         if (settings.demo) {
           t = shuffled(DEMO_TRACKS)
         } else {
-          await initPlayer()
-          t = await fetchTracks({ ...settings, enrichPreviews: isMobile })
+          t = await fetchTracks({ ...settings, enrichPreviews: true })
           if (t.length === 0) throw new Error('No songs found. Try selecting more decades.')
           t.forEach(track => seenIds.current.add(track.id))
           log('game_start', {
-            platform: isMobile ? 'ios' : 'desktop',
+            platform,
             decades: settings.decades,
             difficulty: settings.difficulty,
             genre: settings.genre,
             tracks_loaded: t.length,
           })
           sessionStart({
-            platform: isMobile ? 'ios' : 'desktop',
+            platform,
             num_teams: settings.teams.length,
             difficulty: settings.difficulty,
             decades: settings.decades,
@@ -170,7 +171,7 @@ export default function Game({ settings, onQuit }) {
         })))
         setPhase(PHASE.READY)
       } catch (e) {
-        log('error', { platform: isMobile ? 'ios' : 'desktop', message: e.message, phase: 'init' })
+        log('error', { platform, message: e.message, phase: 'init' })
         setError(e.message)
       }
     }
@@ -182,15 +183,12 @@ export default function Game({ settings, onQuit }) {
 
   async function handlePlay() {
     try {
-      if (!settings.demo) {
-        if (isMobile) await playSongMobile(currentTrack)
-        else await playSong(currentTrack.uri, currentTrack.previewUrl)
-      }
+      if (!settings.demo) await playSong(currentTrack)
       setPhase(PHASE.LISTENING)
       setPlaying(true)
       setProgress(0)
     } catch (e) {
-      if (isMobile && e.message.includes('No preview')) {
+      if (e.message.includes('No preview')) {
         // Skip this track silently and move to the next one
         setTrackIdx(t => t + 1)
       } else {
@@ -274,10 +272,9 @@ export default function Game({ settings, onQuit }) {
     const gameOver = newScore >= TARGET || teams.some(t => t.score >= TARGET) || trackIdx + 1 >= tracks.length
     if (gameOver) {
       log('game_end', {
-        platform: isMobile ? 'ios' : 'desktop',
+        platform,
         rounds: trackIdx + 1,
         scores: teams.map(t => ({ name: t.name, score: t.score })),
-        winner: teams[0].score > teams[1].score ? teams[0].name : teams[1].score > teams[0].score ? teams[1].name : 'draw',
       })
       if (!settings.demo) {
         sessionEnd({
@@ -620,15 +617,12 @@ export default function Game({ settings, onQuit }) {
       {/* Playback bar — always rendered to avoid timeline jumping */}
       <div style={{ padding: '0 1.25rem 0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', visibility: (phase !== PHASE.READY && phase !== PHASE.REVEALED && phase !== PHASE.JUDGED) ? 'visible' : 'hidden' }}>
           <button
-            onClick={async () => {
+            onClick={() => {
               if (playing) {
                 if (!settings.demo) pauseSong()
                 setPlaying(false)
               } else {
-                if (!settings.demo) {
-                  if (isMobile) resumeSongMobile()
-                  else await playSong(currentTrack.uri, currentTrack.previewUrl, true)
-                }
+                if (!settings.demo) resumeSong()
                 setPlaying(true)
               }
             }}

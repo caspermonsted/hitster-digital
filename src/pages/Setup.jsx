@@ -16,7 +16,7 @@ const DIFFICULTIES = [
 ]
 const TEAM_COLORS = ['#c4533a', '#3a5d4a', '#d4a13a', '#5a4a8a', '#2a4a7a', '#a8527a']
 
-export default function Setup({ onStart, onLogout }) {
+export default function Setup({ onStart, onDemo }) {
   const [teams, setTeams] = useState([
     { name: 'Team 1' },
     { name: 'Team 2' },
@@ -69,7 +69,7 @@ export default function Setup({ onStart, onLogout }) {
         <span style={{ fontSize: '0.9rem' }}>◐</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <span>33⅓ RPM</span>
-          <button className="btn-ghost" onClick={onLogout} style={{ fontSize: '0.58rem', padding: '0.25rem 0.5rem' }}>LOG UD</button>
+          {onDemo && <button className="btn-ghost" onClick={onDemo} style={{ fontSize: '0.58rem', padding: '0.25rem 0.5rem' }}>DEMO</button>}
         </div>
       </div>
 

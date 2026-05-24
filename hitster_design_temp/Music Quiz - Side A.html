@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Side A — New game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Cormorant+Garamond:ital,wght@0,400..700;1,400..700&family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* Palette: cream */
+      --bg:           #efe7d3;
+      --bg-card:      #f7f1e0;
+      --ink:          #1a1612;
+      --ink-soft:     #4a4036;
+      --rule:         #d4c8a8;
+      --rule-soft:    #e3d9bd;
+      --muted:        #7a6a4a;
+      --accent:       #c4533a;
+      --accent-soft:  #d4a13a;
+      --on-accent:    #fff;
+    }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+    body { display: flex; justify-content: center; }
+    .app {
+      width: 100%; max-width: 480px;
+      padding: 18px 22px 36px;
+      box-sizing: border-box;
+    }
+    /* ───── masthead ───── */
+    .top-strip {
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      letter-spacing: 0.18em; color: var(--muted);
+      padding: 8px 0; border-bottom: 1px solid var(--rule);
+    }
+    .top-strip .mid { font-size: 14px; color: var(--accent); }
+
+    /* ───── hero ───── */
+    .hero {
+      position: relative;
+      padding: 14px 0 22px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid var(--rule);
+      overflow: hidden;
+    }
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.22em; color: var(--accent);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .hero-eyebrow::before, .hero-eyebrow::after {
+      content: ''; height: 1px; background: var(--accent); flex: 1; opacity: 0.4;
+    }
+    .hero-eyebrow::before { display: none; }
+    .hero-number {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 12px; color: var(--accent); font-weight: 600;
+      margin-top: 4px;
+    }
+    h1.hero-title {
+      font-family: var(--font-display);
+      font-weight: 900; font-size: 72px; line-height: 0.95;
+      margin: 8px 0 0;
+      letter-spacing: -0.03em; color: var(--ink);
+      position: relative; z-index: 2;
+    }
+    h1.hero-title .a-italic { font-style: italic; color: var(--accent); }
+    .hero-byline {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.16em; color: var(--ink);
+      display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+      position: relative; z-index: 2;
+    }
+    .hero-byline em {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 14px; letter-spacing: 0; color: var(--ink-soft); font-weight: 500;
+    }
+    /* vinyl sleeve */
+    .sleeve {
+      position: absolute; top: 50%; right: -80px;
+      width: 200px; height: 200px; margin-top: -100px;
+      border-radius: 50%;
+      pointer-events: none; z-index: 1;
+      opacity: 0.55;
+    }
+    .sleeve-disc {
+      width: 100%; height: 100%; border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%,
+          #181410 0 24%,
+          #2a221c 24% 25%,
+          #181410 25% 36%,
+          #2a221c 36% 36.5%,
+          #181410 36.5% 48%,
+          #2a221c 48% 48.5%,
+          #181410 48.5% 100%);
+      position: relative;
+      box-shadow: 0 12px 40px rgba(26, 22, 18, 0.18);
+    }
+    .sleeve-label {
+      position: absolute; inset: 50% 50%;
+      width: 78px; height: 78px; margin: -39px 0 0 -39px;
+      border-radius: 50%; background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-style: italic;
+      color: var(--on-accent); font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+    .sleeve-hole {
+      position: absolute; inset: 50% 50%;
+      width: 8px; height: 8px; margin: -4px 0 0 -4px;
+      border-radius: 50%; background: var(--bg);
+    }
+    .sleeve-glint {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 35%, transparent 65%, rgba(255,255,255,0.04) 100%);
+      pointer-events: none;
+    }
+
+    /* ───── section ───── */
+    section.block { margin-bottom: 30px; }
+    .block-head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 4px;
+    }
+    .block-head-left { display: flex; align-items: baseline; gap: 10px; }
+    .block-num {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.18em; color: var(--accent);
+      border: 1px solid var(--accent); padding: 2px 6px;
+    }
+    .block-title {
+      font-family: var(--font-display);
+      font-size: 28px; font-weight: 800; font-style: italic;
+      margin: 0; letter-spacing: -0.02em; line-height: 1;
+    }
+    .block-sub {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      letter-spacing: 0.14em; color: var(--muted);
+    }
+    .block-rule { border-top: 1px solid var(--ink); margin: 8px 0 14px; }
+
+    /* ───── teams ───── */
+    .team {
+      display: grid; grid-template-columns: auto 1fr auto;
+      align-items: center; gap: 14px;
+      background: var(--bg-card); padding: 14px 16px;
+      border: 1px solid var(--rule);
+      margin-bottom: 8px;
+    }
+    .team-avatar {
+      width: 46px; height: 46px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-style: italic;
+      font-weight: 800; font-size: 24px; color: #fff;
+      flex-shrink: 0;
+    }
+    .team-main { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .team-input {
+      border: none; background: transparent;
+      font-family: var(--font-display);
+      font-size: 19px; font-weight: 700; color: var(--ink);
+      outline: none; padding: 0; width: 100%;
+    }
+    .team-meta {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      letter-spacing: 0.14em; color: var(--muted);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .team-swatches { display: flex; gap: 5px; }
+    .swatch {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: none; cursor: pointer; padding: 0;
+      transition: transform 0.15s;
+    }
+    .swatch:hover { transform: scale(1.2); }
+    .swatch.is-active { outline: 1.5px solid var(--ink); outline-offset: 2px; }
+    .team-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+    .team-idx {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      color: var(--muted); letter-spacing: 0.1em;
+    }
+    .team-remove {
+      border: none; background: transparent; cursor: pointer;
+      font-family: var(--font-display); font-size: 18px;
+      color: var(--muted); line-height: 1; padding: 0;
+    }
+    .team-remove:hover { color: var(--accent); }
+    .add-team {
+      background: transparent; border: 1px dashed var(--ink);
+      padding: 16px; cursor: pointer; width: 100%;
+      display: flex; align-items: center; gap: 12px; justify-content: center;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.18em; color: var(--ink);
+      transition: background 0.15s;
+    }
+    .add-team:hover { background: var(--bg-card); }
+    .add-circle {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--ink); color: var(--bg);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; font-family: var(--font-display);
+    }
+
+    /* ───── decades ───── */
+    .decade-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      border: 1px solid var(--ink); background: transparent;
+      padding: 10px 16px; cursor: pointer;
+      display: inline-flex; align-items: baseline; gap: 2px;
+      font-family: var(--font-display); color: var(--ink);
+      transition: all 0.15s;
+    }
+    .chip:hover { background: var(--bg-card); }
+    .chip.is-active { background: var(--ink); color: var(--bg); }
+    .chip-num { font-size: 22px; font-weight: 800; font-style: italic; line-height: 1; }
+    .chip-suf { font-size: 13px; font-style: italic; line-height: 1; }
+
+    /* ───── difficulty ───── */
+    .diff-stack { display: flex; flex-direction: column; gap: 6px; }
+    .diff {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 18px;
+      background: var(--bg-card); border: 1px solid var(--rule);
+      cursor: pointer; text-align: left;
+      transition: all 0.15s;
+    }
+    .diff:hover { border-color: var(--ink-soft); }
+    .diff.is-active {
+      background: var(--ink); color: var(--bg);
+      border-color: var(--ink);
+    }
+    .diff-left { display: flex; flex-direction: column; gap: 4px; }
+    .diff-title {
+      font-family: var(--font-display); font-weight: 800;
+      font-size: 24px; font-style: italic; line-height: 1;
+    }
+    .diff-meta {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      letter-spacing: 0.12em;
+    }
+    .diff-desc {
+      font-family: var(--font-display); font-style: italic;
+      letter-spacing: 0; font-size: 13px; font-weight: 400;
+    }
+    .diff-mark {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1.5px solid currentColor;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .diff.is-active .diff-mark {
+      background: var(--accent); border-color: var(--accent); color: var(--on-accent);
+    }
+    .diff.is-active .diff-mark::after { content: '●'; font-size: 10px; }
+    .diff:not(.is-active) .diff-mark { color: var(--muted); }
+
+    /* ───── genre ───── */
+    .genre-flow { display: flex; flex-wrap: wrap; gap: 6px; }
+    .genre {
+      border: 1px solid var(--ink); background: transparent;
+      padding: 10px 18px; border-radius: 999px;
+      font-family: var(--font-display); font-style: italic;
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      color: var(--ink);
+      transition: all 0.15s;
+    }
+    .genre:hover { background: var(--bg-card); }
+    .genre.is-active {
+      background: var(--accent); border-color: var(--accent); color: var(--on-accent);
+    }
+
+    /* ───── footer / launch ───── */
+    .launch {
+      margin-top: 32px;
+    }
+    .launch-btn {
+      width: 100%; border: 1px solid var(--ink);
+      background: var(--ink); color: var(--bg);
+      padding: 20px 22px; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      text-align: left;
+      transition: transform 0.15s;
+    }
+    .launch-btn:hover { transform: translateY(-1px); }
+    .launch-btn:active { transform: translateY(0); }
+    .launch-kicker {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      letter-spacing: 0.22em; color: var(--accent-soft); margin-bottom: 5px;
+    }
+    .launch-title {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 28px; font-weight: 800; line-height: 1;
+    }
+    .launch-play {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--accent); color: var(--on-accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; padding-left: 4px;
+      flex-shrink: 0;
+    }
+    .colophon {
+      margin-top: 16px;
+      display: flex; justify-content: center; gap: 10px;
+      font-family: 'JetBrains Mono', monospace; font-size: 8px;
+      letter-spacing: 0.2em; color: var(--muted);
+    }
+
+    /* ───── density modifiers ───── */
+    body.density-compact .app { padding-top: 12px; padding-bottom: 24px; }
+    body.density-compact section.block { margin-bottom: 22px; }
+    body.density-compact .team { padding: 10px 14px; }
+    body.density-compact h1.hero-title { font-size: 56px; }
+    body.density-compact .hero { padding: 10px 0 16px; margin-bottom: 18px; }
+
+    body.density-spacious section.block { margin-bottom: 40px; }
+    body.density-spacious .team { padding: 18px 20px; }
+    body.density-spacious h1.hero-title { font-size: 88px; }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "palette": "Blush",
+      "accent": "#c4533a",
+      "displayFont": "Playfair Display",
+      "density": "Comfortable",
+      "sleeve": "Subtle",
+      "showVinyl": true
+    }/*EDITMODE-END*/;
+
+    // ─── Palettes ─────────────────────────────────────────────
+    const PALETTES = {
+      "Cream":   { bg:'#efe7d3', card:'#f7f1e0', ink:'#1a1612', inkSoft:'#4a4036', rule:'#d4c8a8', muted:'#7a6a4a', onAccent:'#fff' },
+      "Pistachio":{ bg:'#dfe3cf', card:'#ebeed9', ink:'#1f2418', inkSoft:'#3f4734', rule:'#c2c8a8', muted:'#6a7058', onAccent:'#fff' },
+      "Blush":   { bg:'#f1e1dc', card:'#f9ece8', ink:'#1f1715', inkSoft:'#4a3a36', rule:'#dcc4bd', muted:'#7a5e58', onAccent:'#fff' },
+      "Bone":    { bg:'#e6e1d6', card:'#efebe1', ink:'#181715', inkSoft:'#3e3c36', rule:'#c8c2b3', muted:'#6e6a5e', onAccent:'#fff' },
+      "Midnight":{ bg:'#1f1d24', card:'#28252e', ink:'#f0eadb', inkSoft:'#c8c1ad', rule:'#3a3640', muted:'#8a8474', onAccent:'#1a1612' },
+    };
+
+    const ACCENTS = ['#c4533a', '#7a3a4a', '#3a5d4a', '#2a4a7a', '#a86e2a'];
+
+    const DISPLAY_FONTS = {
+      "Playfair Display": '"Playfair Display", serif',
+      "Cormorant": '"Cormorant Garamond", serif',
+      "DM Serif Display": '"DM Serif Display", serif',
+      "Fraunces": '"Fraunces", serif',
+    };
+
+    // ─── Setup screen ─────────────────────────────────────────
+    const SetupScreen = ({ tweaks }) => {
+      const [teams, setTeams] = React.useState([
+        { name: "Anna", color: "#c4533a" },
+        { name: "Jonas", color: "#3a5d4a" },
+      ]);
+      const [decades, setDecades] = React.useState(["80s","90s","00s","10s"]);
+      const [difficulty, setDifficulty] = React.useState("Medium");
+      const [genre, setGenre] = React.useState("All genres");
+      const [time, setTime] = React.useState(new Date());
+      React.useEffect(() => {
+        const t = setInterval(() => setTime(new Date()), 30_000);
+        return () => clearInterval(t);
+      }, []);
+
+      const allDecades = ["60s","70s","80s","90s","00s","10s","20s"];
+      const genres = ["All genres","Pop","Rock","Hip-Hop","Dance","R&B/Soul"];
+      const teamColors = ["#c4533a","#3a5d4a","#d4a13a","#5a4a8a","#2a4a7a","#a8527a"];
+
+      const toggleDecade = (d) =>
+        setDecades((s) => s.includes(d) ? s.filter(x => x !== d) : [...s, d]);
+
+      return (
+        <div className="app">
+          {/* Hero — headline + vinyl, no editorial chrome */}
+          <div className="hero">
+            <div className="sleeve">
+              <div className="sleeve-disc">
+                <div className="sleeve-glint"></div>
+                <div className="sleeve-label">SIDE A</div>
+                <div className="sleeve-hole"></div>
+              </div>
+            </div>
+            <h1 className="hero-title">
+              New <span className="a-italic">game.</span>
+            </h1>
+          </div>
+
+          {/* Teams */}
+          <Block num="A1" title="Teams" sub={`${teams.length} TEAMS · MAX 6`}>
+            {teams.map((t, i) => (
+              <div className="team" key={i}>
+                <div className="team-avatar" style={{background: t.color}}>
+                  {t.name.charAt(0).toUpperCase() || '?'}
+                </div>
+                <div className="team-main">
+                  <input
+                    className="team-input"
+                    value={t.name}
+                    placeholder="Team name"
+                    onChange={(e) => {
+                      const n = [...teams]; n[i] = {...n[i], name: e.target.value}; setTeams(n);
+                    }}
+                  />
+                  <div className="team-meta">
+                    <div className="team-swatches">
+                      {teamColors.map((c) => (
+                        <button
+                          key={c}
+                          className={`swatch${t.color === c ? ' is-active' : ''}`}
+                          style={{background: c}}
+                          onClick={() => {
+                            const n = [...teams]; n[i] = {...n[i], color: c}; setTeams(n);
+                          }}
+                          aria-label={`Farve ${c}`}
+                        ></button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="team-side">
+                  <span className="team-idx">{String(i+1).padStart(2,'0')}</span>
+                  {teams.length > 2 && (
+                    <button
+                      className="team-remove"
+                      onClick={() => setTeams(teams.filter((_, x) => x !== i))}
+                      aria-label="Remove team"
+                    >×</button>
+                  )}
+                </div>
+              </div>
+            ))}
+            {teams.length < 6 && (
+              <button
+                className="add-team"
+                onClick={() => setTeams([...teams, {name:`Team ${teams.length+1}`, color: teamColors[teams.length % teamColors.length]}])}
+              >
+                <span className="add-circle">+</span>
+                <span>Add another team</span>
+              </button>
+            )}
+          </Block>
+
+          {/* Decades */}
+          <Block num="A2" title="Decades" sub={`${decades.length} SELECTED · 1960–2029`}>
+            <div className="decade-row">
+              {allDecades.map((d) => (
+                <button
+                  key={d}
+                  className={`chip${decades.includes(d) ? ' is-active' : ''}`}
+                  onClick={() => toggleDecade(d)}
+                >
+                  <span className="chip-num">{d.replace('s','')}</span>
+                  <span className="chip-suf">'s</span>
+                </button>
+              ))}
+            </div>
+          </Block>
+
+          {/* Difficulty */}
+          <Block num="A3" title="Difficulty" sub="ONE LEVEL ONLY">
+            <div className="diff-stack">
+              {[
+                { k:"Easy",   t:"Big hits",      desc:"Songs everyone knows." },
+                { k:"Medium", t:"Known tracks",  desc:"For a mixed crowd." },
+                { k:"Hard",   t:"Obscure",       desc:"For the enthusiasts." },
+              ].map((opt) => (
+                <button
+                  key={opt.k}
+                  className={`diff${difficulty === opt.k ? ' is-active' : ''}`}
+                  onClick={() => setDifficulty(opt.k)}
+                >
+                  <div className="diff-left">
+                    <div className="diff-title">{opt.k}</div>
+                    <div className="diff-meta">
+                      {opt.t.toUpperCase()} · <span className="diff-desc">{opt.desc}</span>
+                    </div>
+                  </div>
+                  <div className="diff-mark"></div>
+                </button>
+              ))}
+            </div>
+          </Block>
+
+          {/* Genre */}
+          <Block num="A4" title="Repertoire" sub="GENRES">
+            <div className="genre-flow">
+              {genres.map((g) => (
+                <button
+                  key={g}
+                  className={`genre${genre === g ? ' is-active' : ''}`}
+                  onClick={() => setGenre(g)}
+                >{g}</button>
+              ))}
+            </div>
+          </Block>
+
+          {/* Launch */}
+          <div className="launch">
+            <button className="launch-btn">
+              <div>
+                <div className="launch-kicker">DROP THE NEEDLE TO BEGIN</div>
+                <div className="launch-title">Start the game</div>
+              </div>
+              <div className="launch-play">▶</div>
+            </button>
+            <div className="colophon">
+              <span>PUBLISHED IN-HOUSE</span>
+              <span>·</span>
+              <span>MMXXVI</span>
+              <span>·</span>
+              <span>SIDE 01 / 04</span>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const Block = ({ num, title, sub, children }) => (
+      <section className="block">
+        <div className="block-head">
+          <div className="block-head-left">
+            <span className="block-num">{num}</span>
+            <h2 className="block-title">{title}</h2>
+          </div>
+          <span className="block-sub">{sub}</span>
+        </div>
+        <div className="block-rule"></div>
+        {children}
+      </section>
+    );
+
+    // ─── Apply tweaks to CSS vars ─────────────────────────────
+    function applyTweaks(t) {
+      const p = PALETTES[t.palette] || PALETTES.Cream;
+      const r = document.documentElement.style;
+      r.setProperty('--bg', p.bg);
+      r.setProperty('--bg-card', p.card);
+      r.setProperty('--ink', p.ink);
+      r.setProperty('--ink-soft', p.inkSoft);
+      r.setProperty('--rule', p.rule);
+      r.setProperty('--muted', p.muted);
+      r.setProperty('--on-accent', p.onAccent);
+      r.setProperty('--accent', t.accent);
+      r.setProperty('--font-display', DISPLAY_FONTS[t.displayFont] || DISPLAY_FONTS["Playfair Display"]);
+      document.body.classList.remove('density-compact','density-comfortable','density-spacious');
+      document.body.classList.add('density-' + (t.density || 'Comfortable').toLowerCase());
+    }
+
+    // ─── App with tweaks panel ────────────────────────────────
+    const App = () => {
+      const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+      React.useEffect(() => { applyTweaks(tweaks); }, [tweaks]);
+
+      return (
+        <>
+          <SetupScreen tweaks={tweaks} />
+          <TweaksPanel title="Tweaks">
+            <TweakSection label="Palette">
+              <TweakSelect
+                label="Colors"
+                value={tweaks.palette}
+                options={Object.keys(PALETTES)}
+                onChange={(v) => setTweak('palette', v)}
+              />
+              <TweakColor
+                label="Accent"
+                value={tweaks.accent}
+                options={ACCENTS}
+                onChange={(v) => setTweak('accent', v)}
+              />
+            </TweakSection>
+
+            <TweakSection label="Typography">
+              <TweakSelect
+                label="Display"
+                value={tweaks.displayFont}
+                options={Object.keys(DISPLAY_FONTS)}
+                onChange={(v) => setTweak('displayFont', v)}
+              />
+            </TweakSection>
+
+            <TweakSection label="Layout">
+              <TweakRadio
+                label="Density"
+                value={tweaks.density}
+                options={['Compact','Comfortable','Spacious']}
+                onChange={(v) => setTweak('density', v)}
+              />
+            </TweakSection>
+
+
+          </TweaksPanel>
+        </>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

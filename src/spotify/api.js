@@ -1,16 +1,11 @@
-import { getToken } from './auth'
 import { log } from '../log'
 
 async function apiFetch(path) {
-  const token = await getToken()
-  const res = await fetch(`https://api.spotify.com/v1${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+  const res = await fetch(`/api${path}`)
   if (res.status === 204) return {}
   if (res.status === 429) {
-    const retryAfter = res.headers.get('Retry-After')
-    const wait = retryAfter ? ` Wait ${retryAfter} seconds.` : ' Wait a few minutes.'
-    throw new Error(`Spotify rate limit reached.${wait} Try again later.`)
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.error?.message || 'Spotify rate limit reached. Wait a few minutes.')
   }
   const text = await res.text()
   if (!res.ok) {
@@ -111,7 +106,7 @@ export async function fetchTracks({ decades, difficulty, genre, count = 40, excl
 
   if (enrichPreviews) {
     const withSpotify = candidates.filter(t => t.previewUrl).length
-    const needsItunes = candidates.length - withSpotify
+    const needsDeezer = candidates.length - withSpotify
 
     await Promise.all(
       candidates
@@ -119,7 +114,7 @@ export async function fetchTracks({ decades, difficulty, genre, count = 40, excl
         .map(async t => { t.previewUrl = await deezerPreview(t.title, t.artist) })
     )
 
-    const withItunes = candidates.filter(t => t.previewUrl).length - withSpotify
+    const withDeezer = candidates.filter(t => t.previewUrl).length - withSpotify
     candidates = candidates.filter(t => t.previewUrl)
 
     if (candidates.length === 0) {
@@ -127,12 +122,11 @@ export async function fetchTracks({ decades, difficulty, genre, count = 40, excl
     }
 
     log('track_fetch', {
-      platform: 'ios',
       total: candidates.length,
       spotify_previews: withSpotify,
-      deezer_lookups: needsItunes,
-      deezer_found: withItunes,
-      dropped: needsItunes - withItunes,
+      deezer_lookups: needsDeezer,
+      deezer_found: withDeezer,
+      dropped: needsDeezer - withDeezer,
     })
   }
 

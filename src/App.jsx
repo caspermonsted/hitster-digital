@@ -1,21 +1,10 @@
-import { useState, useEffect } from 'react'
-import { isLoggedIn } from './spotify/auth'
-import Login from './pages/Login'
-import Callback from './pages/Callback'
+import { useState } from 'react'
 import Setup from './pages/Setup'
 import Game from './pages/Game'
 
 export default function App() {
-  const [page, setPage] = useState(() => {
-    if (window.location.pathname === '/callback') return 'callback'
-    if (isLoggedIn()) return 'setup'
-    return 'login'
-  })
+  const [page, setPage] = useState('setup')
   const [gameSettings, setGameSettings] = useState(null)
-
-  function handleLoggedIn() {
-    setPage('setup')
-  }
 
   function handleStart(settings) {
     setGameSettings(settings)
@@ -27,19 +16,12 @@ export default function App() {
     setGameSettings(null)
   }
 
-  function handleLogout() {
-    import('./spotify/auth').then(({ logout }) => logout())
-    setPage('login')
-  }
-
   function handleDemo() {
-    setPage('setup')
     setGameSettings({ demo: true, teams: [{ name: 'Team 1' }, { name: 'Team 2' }], decades: ['80s', '90s', '00s', '10s'], target: 10 })
+    setPage('game')
   }
 
-  if (page === 'callback') return <Callback onDone={handleLoggedIn} />
-  if (page === 'login') return <Login onDemo={handleDemo} />
-  if (page === 'setup') return <Setup onStart={handleStart} onLogout={handleLogout} />
+  if (page === 'setup') return <Setup onStart={handleStart} onDemo={handleDemo} />
   if (page === 'game') return <Game settings={gameSettings} onQuit={handleQuit} />
   return null
 }

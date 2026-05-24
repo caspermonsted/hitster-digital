@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game — iPhone landscape preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: #18141a;
+      color: #d8d0c0;
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 24px;
+    }
+    .label {
+      font-size: 10px; letter-spacing: 0.24em;
+      color: #7a7068;
+      display: flex; gap: 16px; align-items: baseline;
+    }
+    .label strong {
+      color: #f0eadb; font-weight: 600;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 16px; letter-spacing: 0;
+    }
+    .label-row { display: flex; gap: 20px; align-items: baseline; }
+
+    /* iPhone 14 Pro landscape: 852 × 393 actual, plus bezel */
+    .phone {
+      position: relative;
+      width: 884px; height: 425px;
+      background: #1a1612;
+      border-radius: 56px;
+      padding: 16px;
+      box-shadow:
+        0 0 0 2px #2a2520,
+        0 30px 80px rgba(0, 0, 0, 0.6),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+    .phone-screen {
+      width: 100%; height: 100%;
+      border-radius: 42px;
+      overflow: hidden;
+      background: #f1e1dc;
+      position: relative;
+    }
+    .phone-screen iframe {
+      display: block;
+      width: 852px; height: 393px;
+      border: none;
+    }
+    /* Dynamic Island (left side in landscape) */
+    .island {
+      position: absolute;
+      left: 28px; top: 50%;
+      transform: translateY(-50%);
+      width: 30px; height: 110px;
+      background: #0a0807;
+      border-radius: 20px;
+      z-index: 10;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    .scale-row {
+      display: flex; gap: 32px; align-items: center;
+    }
+    .scale-btn {
+      background: transparent;
+      border: 1px solid #3a3530;
+      color: #d8d0c0;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-family: inherit; font-size: 10px;
+      letter-spacing: 0.18em;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .scale-btn:hover { border-color: #8a7a6a; }
+    .scale-btn.is-active { background: #d8d0c0; color: #1a1612; border-color: #d8d0c0; }
+
+    .screen-row {
+      display: flex; gap: 8px; align-items: center;
+      margin-bottom: -8px;
+    }
+    .screen-btn {
+      background: transparent;
+      border: 1px solid #3a3530;
+      color: #d8d0c0;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: 'Playfair Display', serif; font-style: italic;
+      font-size: 14px; font-weight: 700;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .screen-btn:hover { border-color: #8a7a6a; }
+    .screen-btn.is-active { background: #d8d0c0; color: #1a1612; border-color: #d8d0c0; }
+
+    .note {
+      font-size: 10px; letter-spacing: 0.14em; color: #7a7068;
+      max-width: 884px; text-align: center; line-height: 1.6;
+    }
+    .note a { color: #c4533a; text-decoration: none; border-bottom: 1px dotted #c4533a; }
+  </style>
+</head>
+<body>
+  <div class="label-row">
+    <span class="label">PREVIEW · <strong id="screen-name">Music Quiz · Game</strong></span>
+    <span class="label">iPhone 14 Pro · landscape · 852 × 393</span>
+  </div>
+
+  <div class="screen-row">
+    <button class="screen-btn is-active" data-src="Music Quiz - Spil.html" data-name="Music Quiz · Game">Gameplay</button>
+    <button class="screen-btn" data-src="Music Quiz - Handoff.html" data-name="Music Quiz · Handoff">Handoff</button>
+    <button class="screen-btn" data-src="Music Quiz - Loading.html" data-name="Music Quiz · Loading">Loading</button>
+    <button class="screen-btn" data-src="Music Quiz - End.html" data-name="Music Quiz · End of game">End of game</button>
+    <button class="screen-btn" data-src="Music Quiz - Connect.html" data-name="Music Quiz · Welcome">Welcome (portrait)</button>
+    <button class="screen-btn" data-src="Music Quiz — Side A.html" data-name="Music Quiz · Setup">Setup (portrait)</button>
+  </div>
+
+  <div class="phone" id="phone">
+    <div class="phone-screen">
+      <iframe src="Music Quiz - Spil.html" title="Music Quiz Spil"></iframe>
+      <div class="island"></div>
+    </div>
+  </div>
+
+  <div class="scale-row">
+    <button class="scale-btn is-active" data-device="iphone-14-pro">iPhone 14 Pro<br/>852 × 393</button>
+    <button class="scale-btn" data-device="iphone-se">iPhone SE<br/>667 × 375</button>
+    <button class="scale-btn" data-device="ipad-mini">iPad mini<br/>1133 × 744</button>
+    <button class="scale-btn" data-device="ipad-pro">iPad Pro 11"<br/>1180 × 820</button>
+  </div>
+
+  <p class="note">
+    Sizes match each device's logical landscape resolution.
+    Tweaks panel is hidden inside the iframe; open <a href="Music Quiz - Spil.html">Spil.html</a> directly to use it.
+  </p>
+
+  <script>
+    const phone = document.getElementById('phone');
+    const screen = phone.querySelector('.phone-screen');
+    const iframe = phone.querySelector('iframe');
+    const island = phone.querySelector('.island');
+
+    const DEVICES = {
+      'iphone-14-pro': { w: 852, h: 393, frame: 16, radius: 56, innerRadius: 42, island: true },
+      'iphone-se':     { w: 667, h: 375, frame: 14, radius: 38, innerRadius: 22, island: false },
+      'ipad-mini':     { w: 1133, h: 744, frame: 22, radius: 42, innerRadius: 22, island: false },
+      'ipad-pro':      { w: 1180, h: 820, frame: 24, radius: 46, innerRadius: 22, island: false },
+    };
+
+    function setDevice(key) {
+      const d = DEVICES[key];
+      const maxScreenW = Math.min(1300, window.innerWidth - 60);
+      const maxScreenH = Math.min(760, window.innerHeight - 220);
+      // scale so the whole phone (including frame) fits
+      const totalW = d.w + d.frame * 2;
+      const totalH = d.h + d.frame * 2;
+      const scale = Math.min(maxScreenW / totalW, maxScreenH / totalH, 1);
+
+      phone.style.width = totalW + 'px';
+      phone.style.height = totalH + 'px';
+      phone.style.padding = d.frame + 'px';
+      phone.style.borderRadius = d.radius + 'px';
+      phone.style.transform = `scale(${scale})`;
+      phone.style.transformOrigin = 'center';
+      // make outer space match scaled visual
+      phone.style.margin = `${(totalH * (scale - 1)) / 2}px ${(totalW * (scale - 1)) / 2}px`;
+
+      screen.style.borderRadius = d.innerRadius + 'px';
+      iframe.style.width = d.w + 'px';
+      iframe.style.height = d.h + 'px';
+      island.style.display = d.island ? 'block' : 'none';
+    }
+
+    document.querySelectorAll('.scale-btn').forEach((b) => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.scale-btn').forEach((x) => x.classList.remove('is-active'));
+        b.classList.add('is-active');
+        setDevice(b.dataset.device);
+      });
+    });
+
+    document.querySelectorAll('.screen-btn').forEach((b) => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.screen-btn').forEach((x) => x.classList.remove('is-active'));
+        b.classList.add('is-active');
+        iframe.src = b.dataset.src;
+        document.getElementById('screen-name').textContent = b.dataset.name;
+      });
+    });
+
+    setDevice('iphone-14-pro');
+    window.addEventListener('resize', () => {
+      const active = document.querySelector('.scale-btn.is-active');
+      setDevice(active.dataset.device);
+    });
+  </script>
+</body>
+</html>
