@@ -269,8 +269,7 @@ export default function Game({ settings, onQuit }) {
   const TARGET = settings.target ?? 10
 
   function handleNext() {
-    const newScore = isCorrect ? teams[teamIdx].score + 1 : teams[teamIdx].score
-    const gameOver = newScore >= TARGET || teams.some(t => t.score >= TARGET) || trackIdx + 1 >= tracks.length
+    const gameOver = teams.some(t => t.score >= TARGET) || trackIdx + 1 >= tracks.length
     if (gameOver) {
       log('game_end', {
         platform,
@@ -288,7 +287,11 @@ export default function Game({ settings, onQuit }) {
       setPhase(PHASE.DONE)
     } else {
       setRoundCount(r => r + 1)
-      setPhase(PHASE.HANDOFF)
+      if (teams.length === 1) {
+        handleBeginTurn()
+      } else {
+        setPhase(PHASE.HANDOFF)
+      }
     }
   }
 
