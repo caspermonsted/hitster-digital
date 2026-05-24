@@ -516,7 +516,7 @@ export default function Game({ settings, onQuit }) {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <button onClick={onQuit} style={{ background: 'none', border: '1px solid var(--border)', padding: '0.35rem 0.6rem', cursor: 'pointer' }}>
-          <span className="mono" style={{ fontSize: '0.62rem' }}>⏸</span>
+          <span className="mono" style={{ fontSize: '0.62rem' }}>✕</span>
         </button>
         <div style={{ textAlign: 'center' }}>
           <div className="mono" style={{ fontSize: '0.6rem' }}>
