@@ -130,8 +130,8 @@ export async function fetchTracks({ decades, difficulty, genre, count = 40, excl
       platform: 'ios',
       total: candidates.length,
       spotify_previews: withSpotify,
-      itunes_lookups: needsItunes,
-      itunes_found: withItunes,
+      deezer_lookups: needsItunes,
+      deezer_found: withItunes,
       dropped: needsItunes - withItunes,
     })
   }
