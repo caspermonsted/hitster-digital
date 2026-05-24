@@ -123,11 +123,7 @@ export async function fetchTracks({ decades, difficulty, genre, count = 40, excl
     candidates = candidates.filter(t => t.previewUrl)
 
     if (candidates.length === 0) {
-      throw new Error(
-        `No playable songs found.\n` +
-        `Spotify previews: ${withSpotify}\n` +
-        `Deezer looked up: ${needsItunes}, found: ${withItunes}`
-      )
+      throw new Error('No playable songs found. Try selecting more decades or a different genre.')
     }
 
     log('track_fetch', {
