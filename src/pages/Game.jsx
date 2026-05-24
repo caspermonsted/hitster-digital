@@ -250,7 +250,7 @@ export default function Game({ settings, onQuit }) {
     setPhase(PHASE.REVEALED)
     setPlaying(false)
     if (!settings.demo) pauseSong()
-    if (!settings.demo) playedTracksRef.current.push({ id: currentTrack.id, year: currentTrack.year })
+    if (!settings.demo) playedTracksRef.current.push({ id: currentTrack.id, year: currentTrack.year, title: currentTrack.title, artist: currentTrack.artist })
   }
 
   function handleJudge(guessedTitle) {
